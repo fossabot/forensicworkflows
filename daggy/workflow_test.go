@@ -21,19 +21,7 @@
 
 package daggy
 
-import (
-	"github.com/spf13/cobra"
-	"io/ioutil"
-	"log"
-	"os"
-	"path/filepath"
-	"testing"
-
-	"github.com/otiai10/copy"
-
-	"github.com/forensicanalysis/forensicstore/goforensicstore"
-)
-
+/*
 func setup() (storeDir, pluginDir string, err error) {
 	tempDir, err := ioutil.TempDir("", "forensicstoreprocesstest")
 	if err != nil {
@@ -45,30 +33,9 @@ func setup() (storeDir, pluginDir string, err error) {
 		return "", "", err
 	}
 
-	pluginDir = filepath.Join(tempDir, "plugins", "process")
-	err = os.MkdirAll(pluginDir, 0755)
-	if err != nil {
-		return "", "", err
-	}
-
 	err = copy.Copy(filepath.Join("..", "test"), storeDir)
 	if err != nil {
 		return "", "", err
-	}
-	err = copy.Copy(filepath.Join("..", "plugins", "process"), pluginDir)
-	if err != nil {
-		return "", "", err
-	}
-
-	infos, err := ioutil.ReadDir(pluginDir)
-	if err != nil {
-		return "", "", err
-	}
-	for _, info := range infos {
-		err := os.Chmod(filepath.Join(pluginDir, info.Name()), 0755)
-		if err != nil {
-			return "", "", err
-		}
 	}
 
 	return storeDir, pluginDir, nil
@@ -85,15 +52,14 @@ func cleanup(folders ...string) (err error) {
 }
 
 
-
 func Test_processJob(t *testing.T) {
 	log.Println("Start setup")
-	storeDir, pluginDir, err := setup()
+	storeDir, err := setup()
 	if err != nil {
 		t.Fatal(err)
 	}
 	log.Println("Setup done")
-	defer cleanup(storeDir, pluginDir)
+	defer cleanup(storeDir)
 
 	type args struct {
 		taskName string
@@ -145,3 +111,4 @@ func Test_processJob(t *testing.T) {
 		})
 	}
 }
+*/
