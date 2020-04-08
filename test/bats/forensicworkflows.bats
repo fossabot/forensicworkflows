@@ -32,14 +32,14 @@ teardown() {
 
 @test "import json" {
   forensicstore create $TESTDIR/test.forensicstore
-  run forensicworkflows import-json --type import --file test/import.json $TESTDIR/test.forensicstore
+  run forensicworkflows run import-json --type import --file test/import.json $TESTDIR/test.forensicstore
   [ "$status" -eq 0 ]
 }
 
 @test "process single (prefetch)" {
   cp -r test/example1.forensicstore $TESTDIR/example1.forensicstore
   [ -f "$TESTDIR/example1.forensicstore/item.db" ]
-  forensicworkflows prefetch $TESTDIR/example1.forensicstore
+  forensicworkflows run prefetch $TESTDIR/example1.forensicstore
 }
 
 # @test "process workflow" {
@@ -53,7 +53,7 @@ teardown() {
 @test "export json" {
   cp -r test/data/example1.forensicstore $TESTDIR/example3.forensicstore
   [ -f "$TESTDIR/example3.forensicstore/item.db" ]
-  run forensicworkflows export-json --file $TESTDIR/export.json $TESTDIR/example3.forensicstore
+  run forensicworkflows run export-json --file $TESTDIR/export.json $TESTDIR/example3.forensicstore
   echo $output
   [ "$status" -eq 0 ]
   [ -f "$TESTDIR/export.json" ]

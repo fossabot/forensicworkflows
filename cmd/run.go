@@ -34,18 +34,18 @@ import (
 	"strings"
 )
 
-// Process is a subcommand to run a forens
-func Process() *cobra.Command {
+// Run is a subcommand to run a forens
+func Run() *cobra.Command {
 	// unpack()
 
-	processCommand := &cobra.Command{
-		Use:   "process",
+	command := &cobra.Command{
+		Use:   "run",
 		Short: "Run a workflow on the forensicstore",
 	}
-	processCommand.AddCommand(subcommands.Commands...)
-	processCommand.AddCommand(daggy.DockerCommands()...)
-	processCommand.AddCommand(daggy.ScriptCommands()...)
-	return processCommand
+	command.AddCommand(subcommands.Commands...)
+	command.AddCommand(daggy.DockerCommands()...)
+	command.AddCommand(daggy.ScriptCommands()...)
+	return command
 }
 
 func unpack() error {
