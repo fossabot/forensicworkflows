@@ -23,11 +23,11 @@ package daggy
 
 import (
 	"fmt"
+	"github.com/spf13/cobra"
 	"log"
 
 	"github.com/hashicorp/terraform/dag"
 	"github.com/hashicorp/terraform/tfdiags"
-	"github.com/pkg/errors"
 )
 
 // Workflow can be used to parse workflow.yml files.
@@ -37,7 +37,7 @@ type Workflow struct {
 	graph      *dag.AcyclicGraph
 	workingDir string
 	pluginDir  string
-	plugins    map[string]Plugin
+	plugins    map[string]*cobra.Command
 }
 
 // SetupGraph creates a direct acyclic graph of tasks.
@@ -62,7 +62,7 @@ func (workflow *Workflow) SetupGraph() {
 }
 
 // Run walks the direct acyclic graph to execute each task.
-func (workflow *Workflow) Run(workingDir, pluginDir string, plugins map[string]Plugin, arguments Arguments) error {
+func (workflow *Workflow) Run(workingDir, pluginDir string, plugins map[string]*cobra.Command, arguments Arguments) error {
 	workflow.workingDir = workingDir
 	workflow.pluginDir = pluginDir
 	workflow.Arguments = arguments
@@ -84,7 +84,9 @@ func (workflow *Workflow) runTask(taskName string) (err error) {
 
 	log.Println("Start", taskName)
 	defer log.Println("End", taskName)
-	switch task.Type {
+	fmt.Println(task)
+	return nil
+	/* switch task.Type {
 	case "bash":
 		return bash(task.Command, task.Arguments, task.Filter, workflow)
 	case "docker":
@@ -95,5 +97,5 @@ func (workflow *Workflow) runTask(taskName string) (err error) {
 		return plugin(task.Command, task.Arguments, task.Filter, workflow)
 	default:
 		return errors.New("unknown type")
-	}
+	} */
 }

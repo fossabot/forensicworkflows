@@ -22,6 +22,7 @@
 package daggy
 
 import (
+	"github.com/spf13/cobra"
 	"io/ioutil"
 	"log"
 	"os"
@@ -83,18 +84,7 @@ func cleanup(folders ...string) (err error) {
 	return nil
 }
 
-// ExamplePlugin represents a plugin for forensicstore processing.
-type ExamplePlugin struct{}
 
-// Run does nothing for the example plugin.
-func (*ExamplePlugin) Description() string {
-	return ""
-}
-
-// Run does nothing for the example plugin.
-func (*ExamplePlugin) Run(string, Arguments, Filter) error {
-	return nil
-}
 
 func Test_processJob(t *testing.T) {
 	log.Println("Start setup")
@@ -129,7 +119,7 @@ func Test_processJob(t *testing.T) {
 			workflow := Workflow{Tasks: map[string]Task{tt.args.taskName: tt.args.task}}
 			workflow.SetupGraph()
 
-			plugins := map[string]Plugin{"example": &ExamplePlugin{}}
+			plugins := map[string]*cobra.Command{"example": &cobra.Command{}}
 
 			if err := workflow.Run(filepath.Join(storeDir, tt.storeName), pluginDir, plugins, nil); (err != nil) != tt.wantErr {
 				t.Errorf("runTask() error = %v, wantErr %v", err, tt.wantErr)

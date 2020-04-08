@@ -22,59 +22,75 @@
 package cmd
 
 import (
+	"errors"
+	"github.com/forensicanalysis/forensicworkflows/cmd/subcommands"
+	"github.com/forensicanalysis/forensicworkflows/daggy"
+	"github.com/markbates/pkger"
+	"github.com/spf13/cobra"
+	"io"
 	"log"
 	"os"
-
-	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
-
-	"github.com/forensicanalysis/forensicworkflows/daggy"
-	"github.com/forensicanalysis/forensicworkflows/plugins/process"
+	"path/filepath"
+	"strings"
 )
 
 // Process is a subcommand to run a forens
 func Process() *cobra.Command {
+	unpack()
+
 	processCommand := &cobra.Command{
 		Use:   "process",
 		Short: "Run a workflow on the forensicstore",
-		Long: `process can run parallel workflows locally. Those workflows are a directed acyclic graph of tasks.
-Those tasks can be defined to be run on the system itself or in a containerized way.`,
-		Args: func(cmd *cobra.Command, args []string) error {
-			if len(args) < 1 {
-				return errors.New("requires at least one store")
-			}
-			for _, arg := range args {
-				if _, err := os.Stat(arg); os.IsNotExist(err) {
-					return errors.Wrap(os.ErrNotExist, arg)
-				}
-			}
-			return cmd.MarkFlagRequired("workflow")
-		},
-		Run: func(cmd *cobra.Command, args []string) {
-			// parse workflow yaml
-			workflowFile := cmd.Flags().Lookup("workflow").Value.String()
-			if _, err := os.Stat(workflowFile); os.IsNotExist(err) {
-				log.Fatal(errors.Wrap(os.ErrNotExist, workflowFile))
-			}
-			workflow, err := daggy.Parse(workflowFile)
-			if err != nil {
-				log.Fatal("parsing failed: ", err)
-			}
-
-			arguments := getArguments(cmd)
-			tasksFunc(workflow, process.Plugins, "process", args, arguments)
-		},
 	}
-	processCommand.Flags().String("workflow", "", "workflow definition file")
-	processCommand.AddCommand(ListProcess())
+	processCommand.AddCommand(subcommands.Commands...)
+	processCommand.AddCommand(daggy.DockerCommands()...)
+	processCommand.AddCommand(daggy.ScriptCommands()...)
 	return processCommand
 }
 
-func ListProcess() *cobra.Command {
-	importListCommand := &cobra.Command{
-		Use:   "list",
-		Short: "list installed process plugins",
-		Run:   listFunc(process.Plugins, "process"),
+func unpack() error {
+	cacheDir, err := os.UserConfigDir()
+	if err != nil {
+		return err
 	}
-	return importListCommand
+
+	forensicstoreDir := filepath.Join(cacheDir, "forensicstore")
+	scriptsDir := filepath.Join(forensicstoreDir, "scripts")
+
+	_ = os.RemoveAll(scriptsDir)
+
+	log.Printf("unpack to %s\n", forensicstoreDir)
+
+	err = pkger.Walk("/scripts", func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		parts := strings.SplitN(path, ":", 2)
+		if len(parts) != 2 {
+			return errors.New("could not split path")
+		}
+
+		if info.IsDir() {
+			return os.MkdirAll(filepath.Join(forensicstoreDir, parts[1]), 0700)
+		}
+
+		// Copy file
+		err = os.MkdirAll(filepath.Join(forensicstoreDir, filepath.Dir(parts[1])), 0700)
+		if err != nil {
+			return err
+		}
+		srcFile, err := pkger.Open(parts[1])
+		if err != nil {
+			return err
+		}
+		dstFile, err := os.Create(filepath.Join(forensicstoreDir, parts[1]))
+		if err != nil {
+			return err
+		}
+		_, err = io.Copy(dstFile, srcFile)
+		return err
+	})
+
+	return err
 }

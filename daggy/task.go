@@ -60,7 +60,7 @@ func (f Filter) toCommandline() []string {
 
 // Match tests if an item matches the filter.
 func (f Filter) Match(item gostore.Item) bool {
-	if f == nil {
+	if len(f) == 0 {
 		return true
 	}
 	for _, condition := range f {

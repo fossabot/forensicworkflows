@@ -99,8 +99,8 @@ import (
 //go:generate pip install -r requirements.txt
 
 func main() {
-	rootCmd := cmd.Process()
-	rootCmd.AddCommand(cmd.Import(), cmd.Export())
+	rootCmd := cobra.Command{}
+	rootCmd.AddCommand(cmd.Process()) //  cmd.Import(), cmd.Export(),
 	rootCmd.Use = "forensicworkflows"
 	rootCmd.FParseErrWhitelist = cobra.FParseErrWhitelist{UnknownFlags: true}
 	if err := rootCmd.Execute(); err != nil {
