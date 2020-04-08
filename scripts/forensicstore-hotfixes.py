@@ -19,18 +19,21 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 # Author(s): Demian Kellermann
+
 """
 This plugin parses different registry entries for installed Hotfixes (patches) to the Windows system
 as well as to other software components
 """
+
+import json
 import logging
 import re
 import struct
+import sys
 from collections import defaultdict
 from datetime import datetime
 
 import forensicstore
-
 from storeutil import combined_conditions
 
 LOGGER = logging.getLogger(__name__)
@@ -136,6 +139,9 @@ def filetime_to_timestamp(filetime_64):
 
 
 def main():
+    if len(sys.argv) > 1 and sys.argv[1] == "info":
+        print(json.dumps({"Use": "hotfixes", "Short": "Process windows hotfixes"}))
+        sys.exit(0)
     store = forensicstore.connect(".")
     hklmsw = "HKEY_LOCAL_MACHINE\\SOFTWARE\\"
     conditions = [{

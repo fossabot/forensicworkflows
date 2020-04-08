@@ -37,7 +37,6 @@ import json
 import sys
 
 import forensicstore
-
 from storeutil import combined_conditions
 
 

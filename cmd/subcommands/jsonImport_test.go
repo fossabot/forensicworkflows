@@ -23,19 +23,27 @@
 
 package subcommands
 
-/*
-func TestJSONPlugin_Run(t *testing.T) {
+import (
+	"github.com/forensicanalysis/forensicstore/goforensicstore"
+	"log"
+	"path/filepath"
+	"testing"
+)
+
+func TestJSONImportPlugin_Run(t *testing.T) {
 	log.Println("Start setup")
-	storeDir, pluginDir, err := setup()
+	storeDir, err := setup("example1.forensicstore", "import.json")
 	if err != nil {
 		t.Fatal(err)
 	}
 	log.Println("Setup done")
-	defer cleanup(storeDir, pluginDir)
+	defer cleanup(storeDir)
+
+	example := filepath.Join(storeDir, "example1.forensicstore")
 
 	type args struct {
 		url  string
-		data daggy.Arguments
+		args []string
 	}
 	tests := []struct {
 		name      string
@@ -43,17 +51,18 @@ func TestJSONPlugin_Run(t *testing.T) {
 		wantCount int
 		wantErr   bool
 	}{
-		{"json", args{"example.forensicstore", daggy.Arguments{"type": "import", "file": filepath.Join(storeDir, "import.json")}}, 1, false},
+		{"json", args{example, []string{"--type", "import", "--file", filepath.Join(storeDir, "import.json")}}, 1, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			js := &JSONPlugin{}
-			url := filepath.Join(storeDir, tt.args.url)
-			err := js.Run(url, tt.args.data, nil)
+			command := JSONImport()
+			command.SetArgs(append(tt.args.args, tt.args.url))
+			err := command.Execute()
+
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Run() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			store, err := goforensicstore.NewJSONLite(url)
+			store, err := goforensicstore.NewJSONLite(tt.args.url)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -69,4 +78,3 @@ func TestJSONPlugin_Run(t *testing.T) {
 		})
 	}
 }
-*/

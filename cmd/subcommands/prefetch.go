@@ -25,74 +25,86 @@ package subcommands
 
 import (
 	"github.com/forensicanalysis/forensicstore/goforensicstore"
-	"github.com/forensicanalysis/forensicworkflows/daggy"
+	"github.com/spf13/cobra"
 	"path"
 	"strings"
 	"time"
 	"www.velocidex.com/golang/go-prefetch"
 )
 
-type PrefetchPlugin struct{}
-
-func (*PrefetchPlugin) Description() string {
-	return "Parse prefetch files"
+func init() {
+	Commands = append(Commands, Prefetch())
 }
 
-func (*PrefetchPlugin) Run(url string, data daggy.Arguments, filter daggy.Filter) error {
-	store, err := goforensicstore.NewJSONLite(url)
-	if err != nil {
-		return err
-	}
+func Prefetch() *cobra.Command {
+	var filtersets []string
+	cmd := &cobra.Command{
+		Use:   "prefetch",
+		Short: "Parse prefetch files",
+		Args:  requireStore,
+		RunE: func(_ *cobra.Command, args []string) error {
+			filter := extractFilter(filtersets)
 
-	fileItems, err := store.Select("file", filter)
-	if err != nil {
-		return err
-	}
+			for _, url := range args {
+				store, err := goforensicstore.NewJSONLite(url)
+				if err != nil {
+					return err
+				}
 
-	for _, item := range fileItems {
-		if name, ok := item["name"]; ok {
-			if name, ok := name.(string); ok {
-				if strings.HasSuffix(name, ".pf") {
-					if exportPath, ok := item["export_path"]; ok {
-						if exportPath, ok := exportPath.(string); ok {
-							file, err := store.Open(path.Join(url, exportPath))
-							if err != nil {
-								return err
-							}
+				fileItems, err := store.Select("file", filter)
+				if err != nil {
+					return err
+				}
 
-							prefetchInfo, err := prefetch.LoadPrefetch(file)
-							if err != nil {
-								return err
-							}
+				for _, item := range fileItems {
+					if name, ok := item["name"]; ok {
+						if name, ok := name.(string); ok {
+							if strings.HasSuffix(name, ".pf") {
+								if exportPath, ok := item["export_path"]; ok {
+									if exportPath, ok := exportPath.(string); ok {
+										file, err := store.Open(path.Join(url, exportPath))
+										if err != nil {
+											return err
+										}
 
-							_, err = store.InsertStruct(struct {
-								Executable    string
-								FileSize      uint32
-								Hash          string
-								Version       string
-								LastRunTimes  []time.Time
-								FilesAccessed []string
-								RunCount      uint32
-								Type          string
-							}{
-								prefetchInfo.Executable,
-								prefetchInfo.FileSize,
-								prefetchInfo.Hash,
-								prefetchInfo.Version,
-								prefetchInfo.LastRunTimes,
-								prefetchInfo.FilesAccessed,
-								prefetchInfo.RunCount,
-								"prefetch",
-							})
-							if err != nil {
-								return err
+										prefetchInfo, err := prefetch.LoadPrefetch(file)
+										if err != nil {
+											return err
+										}
+
+										_, err = store.InsertStruct(struct {
+											Executable    string
+											FileSize      uint32
+											Hash          string
+											Version       string
+											LastRunTimes  []time.Time
+											FilesAccessed []string
+											RunCount      uint32
+											Type          string
+										}{
+											prefetchInfo.Executable,
+											prefetchInfo.FileSize,
+											prefetchInfo.Hash,
+											prefetchInfo.Version,
+											prefetchInfo.LastRunTimes,
+											prefetchInfo.FilesAccessed,
+											prefetchInfo.RunCount,
+											"prefetch",
+										})
+										if err != nil {
+											return err
+										}
+									}
+								}
 							}
 						}
 					}
 				}
 			}
-		}
-	}
 
-	return nil
+			return nil
+		},
+	}
+	cmd.PersistentFlags().StringArrayVar(&filtersets, "filter", nil, "filter processed events")
+	return cmd
 }

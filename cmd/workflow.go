@@ -61,8 +61,8 @@ Those tasks can be defined to be run on the system itself or in a containerized 
 				log.Fatal("parsing failed: ", err)
 			}
 
-			arguments := getArguments(cmd)
-			fmt.Println(workflow, arguments)
+			// arguments := getArguments(cmd)
+			fmt.Println(workflow) //, arguments)
 			// tasksFunc(workflow, subcommands.Commands, "process", args, arguments)
 		},
 	}
@@ -70,7 +70,7 @@ Those tasks can be defined to be run on the system itself or in a containerized 
 	return command
 }
 
-func tasksFunc(workflow *daggy.Workflow, plugins map[string]*cobra.Command, processDir string, stores []string, arguments daggy.Arguments) {
+func tasksFunc(workflow *daggy.Workflow, plugins map[string]*cobra.Command, processDir string, stores, arguments []string) {
 	workflow.SetupGraph()
 
 	// unpack scripts
@@ -94,6 +94,7 @@ func tasksFunc(workflow *daggy.Workflow, plugins map[string]*cobra.Command, proc
 	}
 }
 
+/*
 func getArguments(cmd *cobra.Command) daggy.Arguments {
 	arguments := daggy.Arguments{}
 	for name, unknownFlags := range cmd.Flags().UnknownFlags {
@@ -103,3 +104,4 @@ func getArguments(cmd *cobra.Command) daggy.Arguments {
 	}
 	return arguments
 }
+*/

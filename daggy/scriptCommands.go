@@ -24,7 +24,6 @@
 package daggy
 
 import (
-	"context"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -33,42 +32,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 )
 
 const appName = "forensicstore"
-
-func DockerCommands() []*cobra.Command {
-	ctx := context.Background()
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-	if err != nil {
-		return nil
-	}
-
-	options := types.ImageListOptions{All: true}
-	imageSummaries, err := cli.ImageList(ctx, options)
-	if err != nil {
-		return nil
-	}
-
-	var commands []*cobra.Command
-	for _, imageSummary := range imageSummaries {
-		for _, name := range imageSummary.RepoTags {
-			idx := strings.LastIndex(name, "/")
-			if strings.HasPrefix(name[idx+1:], appName+"-") {
-				commands = append(commands, dockerCommand(name))
-			}
-		}
-	}
-
-	return commands
-}
-
-func dockerCommand(image string) *cobra.Command {
-	return &cobra.Command{Use: image}
-}
 
 func ScriptCommands() []*cobra.Command {
 	dir, _ := os.UserConfigDir()

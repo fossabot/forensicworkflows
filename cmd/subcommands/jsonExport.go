@@ -25,59 +25,67 @@ package subcommands
 
 import (
 	"encoding/json"
-	"errors"
-	"os"
-
 	"github.com/forensicanalysis/forensicstore/goforensicstore"
-	"github.com/forensicanalysis/forensicworkflows/daggy"
+	"github.com/spf13/cobra"
+	"os"
 )
 
-type JSONExportPlugin struct{}
-
-func (*JSONExportPlugin) Description() string {
-	return "Export json files"
+func init() {
+	Commands = append(Commands, JSONExport())
 }
 
-func (*JSONExportPlugin) Run(url string, data daggy.Arguments, filter daggy.Filter) error {
-	store, err := goforensicstore.NewJSONLite(url)
-	if err != nil {
-		return err
-	}
+func JSONExport() *cobra.Command {
+	var file string
+	var filtersets []string
+	cmd := &cobra.Command{
+		Use:   "export-json",
+		Short: "Export json files",
+		Args:  requireStore,
+		RunE: func(_ *cobra.Command, args []string) error {
+			filter := extractFilter(filtersets)
 
-	file := data.Get("file")
-	if file == "" {
-		return errors.New("missing 'file' in args")
-	}
+			for _, url := range args {
+				store, err := goforensicstore.NewJSONLite(url)
+				if err != nil {
+					return err
+				}
 
-	items, err := store.All()
-	if err != nil {
-		return err
-	}
+				items, err := store.All()
+				if err != nil {
+					return err
+				}
 
-	f, err := os.Create(file)
-	if err != nil {
-		return err
-	}
+				f, err := os.Create(file)
+				if err != nil {
+					return err
+				}
 
-	_, err = f.WriteString("[\n")
-	if err != nil {
-		return err
-	}
+				_, err = f.WriteString("[\n")
+				if err != nil {
+					return err
+				}
 
-	encoder := json.NewEncoder(f)
-	for _, item := range items {
-		if filter.Match(item) {
-			err = encoder.Encode(item)
-			if err != nil {
+				encoder := json.NewEncoder(f)
+				for _, item := range items {
+					if filter.Match(item) {
+						err = encoder.Encode(item)
+						if err != nil {
+							return err
+						}
+						_, err = f.WriteString(",\n")
+						if err != nil {
+							return err
+						}
+					}
+				}
+
+				_, err = f.WriteString("]\n")
 				return err
 			}
-			_, err = f.WriteString(",\n")
-			if err != nil {
-				return err
-			}
-		}
+			return nil
+		},
 	}
-
-	_, err = f.WriteString("]\n")
-	return err
+	cmd.PersistentFlags().StringVar(&file, "file", "", "forensicstore")
+	cmd.PersistentFlags().StringArrayVar(&filtersets, "filter", nil, "filter processed events")
+	return cmd
 }

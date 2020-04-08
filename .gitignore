@@ -4,4 +4,6 @@ assets
 __pycache__
 .coverage
 coverage.xml
-test/data
+
+test/data/*
+!test/data/import.json

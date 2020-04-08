@@ -20,8 +20,10 @@
 #
 # Author(s): Demian Kellermann
 
-import forensicstore
+import json
+import sys
 
+import forensicstore
 from storeutil import combined_conditions
 
 NAMES_KEY = r"\control\network\{4d36e972-e325-11ce-bfc1-08002be10318}"
@@ -94,6 +96,9 @@ def transform(objs):
 
 
 def main():
+    if len(sys.argv) > 1 and sys.argv[1] == "info":
+        print(json.dumps({"Use": "networking", "Short": "Process windows network interfaces"}))
+        sys.exit(0)
     store = forensicstore.connect(".")
     conditions = [
         {'key': r"HKEY_LOCAL_MACHINE\SYSTEM\%ControlSet%\Control\Network\{4D36E972-E325-11CE-BFC1-08002BE10318}\%"},

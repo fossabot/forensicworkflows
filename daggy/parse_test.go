@@ -42,7 +42,7 @@ func TestParse(t *testing.T) {
 			"script":      {Type: "plugin", Requires: []string{"cwd"}, Command: "pyexample"},
 			"true":        {Type: "bash", Requires: []string{"false"}, Command: "true"},
 		},
-		Arguments: map[string]string{"docker-server": "test.com"},
+		// Arguments: map[string]string{"docker-server": "test.com"},
 	}
 
 	type args struct {

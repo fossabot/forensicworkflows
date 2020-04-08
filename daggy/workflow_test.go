@@ -112,7 +112,7 @@ func Test_processJob(t *testing.T) {
 		{"unknown type", "example1.forensicstore", args{"testtask", Task{Type: "foo", Command: "foo"}}, "", 0, true},
 		{"bash", "example1.forensicstore", args{"test bash", Task{Type: "bash", Command: "true"}}, "", 0, false},
 		{"bash fail", "example1.forensicstore", args{"test bash", Task{Type: "bash", Command: "false"}}, "", 0, true},
-		{"docker", "example1.forensicstore", args{"testtask", Task{Type: "docker", Image: "alpine", Command: "true"}}, "", 0, false},
+		{"docker", "example1.forensicstore", args{"testtask", Task{Type: "docker", Command: "alpine"}}, "", 0, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

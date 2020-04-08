@@ -23,17 +23,22 @@ package daggy
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
-	"log"
-
 	"github.com/hashicorp/terraform/dag"
 	"github.com/hashicorp/terraform/tfdiags"
+	"github.com/spf13/cobra"
 )
+
+// A Task is a single element in a workflow.yml file.
+type Task struct {
+	Type      string              `yaml:"type"`
+	Requires  []string            `yaml:"requires"`
+	Command   string              `yaml:"command"` // shared
+	Arguments map[string][]string `yaml:"with"`
+}
 
 // Workflow can be used to parse workflow.yml files.
 type Workflow struct {
 	Tasks      map[string]Task `yaml:"tasks"`
-	Arguments  Arguments       `yaml:"with"`
 	graph      *dag.AcyclicGraph
 	workingDir string
 	pluginDir  string
@@ -62,14 +67,13 @@ func (workflow *Workflow) SetupGraph() {
 }
 
 // Run walks the direct acyclic graph to execute each task.
-func (workflow *Workflow) Run(workingDir, pluginDir string, plugins map[string]*cobra.Command, arguments Arguments) error {
+func (workflow *Workflow) Run(workingDir, pluginDir string, plugins map[string]*cobra.Command, arguments []string) error {
 	workflow.workingDir = workingDir
 	workflow.pluginDir = pluginDir
-	workflow.Arguments = arguments
 	workflow.plugins = plugins
 
 	w := &dag.Walker{Callback: func(v dag.Vertex) tfdiags.Diagnostics {
-		err := workflow.runTask(v.(string))
+		err := workflow.runTask(v.(string), arguments)
 		if err != nil {
 			return tfdiags.Diagnostics{tfdiags.Sourceless(tfdiags.Error, fmt.Sprint(v.(string)), err.Error())}
 		}
@@ -79,23 +83,10 @@ func (workflow *Workflow) Run(workingDir, pluginDir string, plugins map[string]*
 	return w.Wait().Err()
 }
 
-func (workflow *Workflow) runTask(taskName string) (err error) {
-	task := workflow.Tasks[taskName]
-
-	log.Println("Start", taskName)
-	defer log.Println("End", taskName)
-	fmt.Println(task)
+func (workflow *Workflow) runTask(taskName string, arguments []string) error {
+	// task := workflow.Tasks[taskName]
+	//process := cmd.Process()
+	//process.SetArgs(append([]string{taskName}, arguments...))
+	//return process.Execute()
 	return nil
-	/* switch task.Type {
-	case "bash":
-		return bash(task.Command, task.Arguments, task.Filter, workflow)
-	case "docker":
-		return docker(task.Image, task.Command, task.Arguments, task.Filter, true, workflow)
-	case "dockerfile":
-		return dockerfile(task.Dockerfile, task.Arguments, task.Filter, workflow)
-	case "plugin":
-		return plugin(task.Command, task.Arguments, task.Filter, workflow)
-	default:
-		return errors.New("unknown type")
-	} */
 }

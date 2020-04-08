@@ -19,6 +19,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 # Author(s): Demian Kellermann
+
 """
 This plugin parses the Windows Uninstaller registry keys for a list of installed software
 """
@@ -27,7 +28,6 @@ import json
 import sys
 
 import forensicstore
-
 from storeutil import combined_conditions
 
 
@@ -86,6 +86,6 @@ def main():
 
 if __name__ == '__main__':
     if len(sys.argv) > 0 and sys.argv[1] == "info":
-        print(json.dumps({"Use": "software", "Short": "Process usb artifacts"}))
+        print(json.dumps({"Use": "software", "Short": "Process uninstall entries"}))
         sys.exit(0)
     main()

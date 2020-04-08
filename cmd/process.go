@@ -36,7 +36,7 @@ import (
 
 // Process is a subcommand to run a forens
 func Process() *cobra.Command {
-	unpack()
+	// unpack()
 
 	processCommand := &cobra.Command{
 		Use:   "process",

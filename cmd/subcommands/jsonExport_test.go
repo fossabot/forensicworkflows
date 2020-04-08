@@ -23,34 +23,42 @@
 
 package subcommands
 
-/*
+import (
+	"log"
+	"path/filepath"
+	"testing"
+)
+
 func TestJSONExpportPlugin_Run(t *testing.T) {
 	log.Println("Start setup")
-	storeDir, pluginDir, err := setup()
+	storeDir, err := setup("example1.forensicstore")
 	if err != nil {
 		t.Fatal(err)
 	}
 	log.Println("Setup done")
-	defer cleanup(storeDir, pluginDir)
+	defer cleanup(storeDir)
+
+	example1 := filepath.Join(storeDir, "example1.forensicstore")
 
 	type args struct {
 		url  string
-		data daggy.Arguments
+		args []string
 	}
 	tests := []struct {
 		name    string
 		args    args
 		wantErr bool
 	}{
-		{"json", args{"example1.forensicstore", daggy.Arguments{"file": filepath.Join(storeDir, "export.json")}}, false},
+		{"json", args{example1, []string{"--file", filepath.Join(storeDir, "export.json")}}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			js := &JSONExportPlugin{}
-			if err := js.Run(filepath.Join(storeDir, "data", tt.args.url), tt.args.data, nil); (err != nil) != tt.wantErr {
+			command := JSONExport()
+			command.SetArgs(append(tt.args.args, tt.args.url))
+			err := command.Execute()
+			if (err != nil) != tt.wantErr {
 				t.Errorf("Run() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
 }
-*/

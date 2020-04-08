@@ -19,8 +19,11 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 # Author(s): Demian Kellermann
+
 """ Output table-like data to CSV files, quoting is enabled for every non-numeric field for easier parsing """
+
 import csv
+import json
 import sys
 from io import StringIO
 
@@ -51,6 +54,9 @@ def transform(store, items, name, header):
 
 
 def main():
+    if len(sys.argv) > 1 and sys.argv[1] == "info":
+        print(json.dumps({"Use": "usb", "Short": "Process usb artifacts"}))
+        sys.exit(0)
     store = forensicstore.connect(".")
     items = list(store.select(sys.argv[1]))
     results = transform(store, items, sys.argv[1], sys.argv[2:])

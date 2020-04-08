@@ -22,8 +22,10 @@
 
 """ Windows services plugin """
 
-import forensicstore
+import json
+import sys
 
+import forensicstore
 from storeutil import combined_conditions
 
 
@@ -120,6 +122,9 @@ def _servicetype_from_bitmask(mask):
 
 
 def main():
+    if len(sys.argv) > 1 and sys.argv[1] == "info":
+        print(json.dumps({"Use": "services", "Short": "Process windows services"}))
+        sys.exit(0)
     store = forensicstore.connect(".")
     conditions = [{'key': "HKEY_LOCAL_MACHINE\\SYSTEM\\%ControlSet%\\Services\\%"}]
     items = list(store.select("windows-registry-key", combined_conditions(conditions)))

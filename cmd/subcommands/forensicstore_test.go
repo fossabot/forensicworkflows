@@ -33,7 +33,7 @@ import (
 
 func TestJSONLitePlugin_Run(t *testing.T) {
 	log.Println("Start setup")
-	storeDir, err := setup()
+	storeDir, err := setup("example1.forensicstore")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -51,8 +51,8 @@ func TestJSONLitePlugin_Run(t *testing.T) {
 		wantErr   bool
 	}{
 		{"jsonlite", args{
-			filepath.Join(storeDir, "data", "example.forensicstore"),
-			[]string{"--file", filepath.Join(storeDir, "data", "example1.forensicstore")},
+			filepath.Join(storeDir, "example.forensicstore"),
+			[]string{"--file", filepath.Join(storeDir, "example1.forensicstore")},
 		}, 3527, false},
 	}
 	for _, tt := range tests {

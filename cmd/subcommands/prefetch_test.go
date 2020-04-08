@@ -25,18 +25,25 @@ package subcommands
 
 import (
 	"github.com/forensicanalysis/forensicstore/goforensicstore"
-	"github.com/forensicanalysis/forensicworkflows/daggy"
 	"log"
 	"path/filepath"
 	"testing"
 )
 
 func TestPrefetchPlugin_Run(t *testing.T) {
+	log.Println("Start setup")
+	storeDir, err := setup("example1.forensicstore")
+	if err != nil {
+		t.Fatal(err)
+	}
+	log.Println("Setup done")
+	defer cleanup(storeDir)
+
+	example1 := filepath.Join(storeDir, "example1.forensicstore")
 
 	type args struct {
-		storeName string
-		data      daggy.Arguments
-		filter    daggy.Filter
+		url  string
+		args []string
 	}
 	tests := []struct {
 		name      string
@@ -45,26 +52,19 @@ func TestPrefetchPlugin_Run(t *testing.T) {
 		wantErr   bool
 	}{
 		// {"Prefetch", args{"example1.forensicstore", nil, nil}, 261, false},
-		{"Prefetch with Filter", args{"example1.forensicstore", nil, daggy.Filter{{"name": "artifactcollector%"}}}, 2, false},
+		{"Prefetch with Filter", args{example1, []string{"--filter", "name=artifactcollector%"}}, 2, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			log.Println("Start setup")
-			storeDir, err := setup()
-			if err != nil {
-				t.Fatal(err)
-			}
-			log.Println("Setup done")
-			defer cleanup(storeDir)
+			command := Prefetch()
+			command.SetArgs(append(tt.args.args, tt.args.url))
+			err := command.Execute()
 
-			pr := &PrefetchPlugin{}
-
-			url := filepath.Join(storeDir, "data", tt.args.storeName)
-			if err := pr.Run(url, tt.args.data, tt.args.filter); (err != nil) != tt.wantErr {
+			if (err != nil) != tt.wantErr {
 				t.Errorf("Run() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
-			store, err := goforensicstore.NewJSONLite(url)
+			store, err := goforensicstore.NewJSONLite(tt.args.url)
 			if err != nil {
 				t.Errorf("goforensicstore.NewJSONLite() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -75,7 +75,6 @@ func TestPrefetchPlugin_Run(t *testing.T) {
 			if len(items) != tt.wantCount {
 				t.Errorf("len(items) = %v, wantCount %v", len(items), tt.wantCount)
 			}
-
 		})
 	}
 }

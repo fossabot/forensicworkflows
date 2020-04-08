@@ -28,29 +28,6 @@ import (
 	"github.com/forensicanalysis/forensicstore/gostore"
 )
 
-func TestArguments_Get(t *testing.T) {
-	type args struct {
-		data  Arguments
-		field string
-	}
-	tests := []struct {
-		name string
-		args args
-		want string
-	}{
-		{"good path", args{Arguments{"foo": "bar"}, "foo"}, "bar"},
-		{"not existing", args{Arguments{"baz": "bar"}, "foo"}, ""},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := tt.args.data.Get(tt.args.field)
-			if got != tt.want {
-				t.Errorf("getStringField() got = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func TestFilter_toCommandline(t *testing.T) {
 	tests := []struct {
 		name string

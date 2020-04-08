@@ -31,23 +31,24 @@ import (
 	"github.com/otiai10/copy"
 )
 
-func setup() (storeDir string, err error) {
+func setup(subdirs ...string) (string, error) {
 	tempDir, err := ioutil.TempDir("", "forensicstoreprocesstest")
 	if err != nil {
 		return "", err
 	}
-	storeDir = filepath.Join(tempDir, "test")
-	err = os.MkdirAll(storeDir, 0755)
+
+	if len(subdirs) == 0 {
+		err = copy.Copy(filepath.Join("..", "..", "test", "data"), tempDir)
+	} else {
+		for _, subdir := range subdirs {
+			err = copy.Copy(filepath.Join("..", "..", "test", "data", subdir), filepath.Join(tempDir, subdir))
+		}
+	}
 	if err != nil {
 		return "", err
 	}
 
-	err = copy.Copy(filepath.Join("..", "..", "test"), storeDir)
-	if err != nil {
-		return "", err
-	}
-
-	return storeDir, nil
+	return tempDir, nil
 }
 
 func cleanup(folders ...string) (err error) {

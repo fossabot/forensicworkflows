@@ -36,9 +36,11 @@ jobs:
       - name: Lint
         run: golangci-lint run --verbose --config test/.golangci.yml --enable gofmt --enable goimports
         if: matrix.os != 'windows-latest'
+        continue-on-error: true
       - name: Lint Windows
         run: golangci-lint run --verbose --config test/.golangci.yml
         if: matrix.os == 'windows-latest'
+        continue-on-error: true
 
       - name: Download testdata
         run: bash test/download_testdata.sh

@@ -21,6 +21,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 # Author(s): Demian Kellermann
+
 """ Shimcache analyser module based on Mandiant's open source shimcache parser """
 # pylint: skip-file
 
@@ -33,7 +34,6 @@ import sys
 from base64 import b64decode
 
 import forensicstore
-
 from storeutil import combined_conditions
 
 LOGGER = logging.getLogger(__name__)
@@ -84,7 +84,7 @@ def transform(obj):
 
 def main():
     if len(sys.argv) > 0 and sys.argv[1] == "info":
-        print(json.dumps({"Use": "shimcache", "Short": "Process usb artifacts"}))
+        print(json.dumps({"Use": "shimcache", "Short": "Process the shimcache"}))
         sys.exit(0)
     store = forensicstore.connect(".")
     conditions = [{
