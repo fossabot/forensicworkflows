@@ -23,10 +23,10 @@ package daggy
 
 import (
 	"log"
-	"reflect"
 	"testing"
 )
 
+/*
 func TestParse(t *testing.T) {
 	workflow := &Workflow{
 		Tasks: map[string]Task{
@@ -76,6 +76,7 @@ func TestParse(t *testing.T) {
 		})
 	}
 }
+*/
 
 func Test_setupLogging(t *testing.T) {
 	setupLogging()
