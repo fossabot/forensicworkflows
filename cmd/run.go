@@ -22,75 +22,23 @@
 package cmd
 
 import (
-	"errors"
+	"github.com/spf13/cobra"
+
 	"github.com/forensicanalysis/forensicworkflows/cmd/subcommands"
 	"github.com/forensicanalysis/forensicworkflows/daggy"
-	"github.com/markbates/pkger"
-	"github.com/spf13/cobra"
-	"io"
-	"log"
-	"os"
-	"path/filepath"
-	"strings"
 )
 
-// Run is a subcommand to run a forens
+// Run is a subcommand to run a single task
 func Run() *cobra.Command {
-	// unpack()
-
 	command := &cobra.Command{
 		Use:   "run",
 		Short: "Run a workflow on the forensicstore",
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			return Install().Execute()
+		},
 	}
 	command.AddCommand(subcommands.Commands...)
 	command.AddCommand(daggy.DockerCommands()...)
 	command.AddCommand(daggy.ScriptCommands()...)
 	return command
-}
-
-func unpack() error {
-	cacheDir, err := os.UserConfigDir()
-	if err != nil {
-		return err
-	}
-
-	forensicstoreDir := filepath.Join(cacheDir, "forensicstore")
-	scriptsDir := filepath.Join(forensicstoreDir, "scripts")
-
-	_ = os.RemoveAll(scriptsDir)
-
-	log.Printf("unpack to %s\n", forensicstoreDir)
-
-	err = pkger.Walk("/scripts", func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-
-		parts := strings.SplitN(path, ":", 2)
-		if len(parts) != 2 {
-			return errors.New("could not split path")
-		}
-
-		if info.IsDir() {
-			return os.MkdirAll(filepath.Join(forensicstoreDir, parts[1]), 0700)
-		}
-
-		// Copy file
-		err = os.MkdirAll(filepath.Join(forensicstoreDir, filepath.Dir(parts[1])), 0700)
-		if err != nil {
-			return err
-		}
-		srcFile, err := pkger.Open(parts[1])
-		if err != nil {
-			return err
-		}
-		dstFile, err := os.Create(filepath.Join(forensicstoreDir, parts[1]))
-		if err != nil {
-			return err
-		}
-		_, err = io.Copy(dstFile, srcFile)
-		return err
-	})
-
-	return err
 }

@@ -100,7 +100,7 @@ import (
 
 func main() {
 	rootCmd := cobra.Command{}
-	rootCmd.AddCommand(cmd.Run()) //  cmd.Import(), cmd.Export(),
+	rootCmd.AddCommand(cmd.Run(), cmd.Install(), cmd.Workflow())
 	rootCmd.Use = "forensicworkflows"
 	rootCmd.FParseErrWhitelist = cobra.FParseErrWhitelist{UnknownFlags: true}
 	if err := rootCmd.Execute(); err != nil {

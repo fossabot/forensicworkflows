@@ -32,7 +32,7 @@ import (
 	"path/filepath"
 )
 
-// Process is a subcommand to run a forens
+// Workflow is a subcommand to run a forensic worklow
 func Workflow() *cobra.Command {
 	command := &cobra.Command{
 		Use:   "workflow",
