@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #  Copyright (c) 2020 Siemens AG
 #
@@ -180,5 +180,4 @@ if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == "info":
         print(json.dumps({"Use": "usb", "Short": "Process usb artifacts"}))
         sys.exit(0)
-    # main()
-    print("main")
+    main()

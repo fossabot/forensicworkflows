@@ -25,3 +25,5 @@ RUN \
 COPY . /app
 ENTRYPOINT ["python3", "/app/main_cmd.py", "-a", "/artifacts", "-o", "/store", "-e", "DefaultEntryPoint", "-i", "/transit"]
 CMD []
+
+LABEL use="artifacts" short="Import artifacts"

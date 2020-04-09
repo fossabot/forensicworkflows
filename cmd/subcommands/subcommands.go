@@ -24,14 +24,15 @@
 package subcommands
 
 import (
+	"os"
+	"strings"
+
 	"github.com/forensicanalysis/forensicworkflows/daggy"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"os"
-	"strings"
 )
 
-func requireStore(_ *cobra.Command, args []string) error {
+func RequireStore(_ *cobra.Command, args []string) error {
 	if len(args) < 1 {
 		return errors.New("requires at least one store")
 	}

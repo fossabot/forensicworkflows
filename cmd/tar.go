@@ -19,7 +19,7 @@
 //
 // Author(s): Jonas Plum
 
-package daggy
+package cmd
 
 import (
 	"archive/tar"

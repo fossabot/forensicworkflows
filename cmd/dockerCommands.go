@@ -19,17 +19,18 @@
 //
 // Author(s): Jonas Plum
 
-package daggy
+package cmd
 
 import (
 	"context"
 	"fmt"
-	"github.com/spf13/cobra"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/spf13/cobra"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -37,7 +38,7 @@ import (
 	"github.com/docker/docker/client"
 )
 
-func DockerCommands() []*cobra.Command {
+func dockerCommands() []*cobra.Command {
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
@@ -54,8 +55,8 @@ func DockerCommands() []*cobra.Command {
 	for _, imageSummary := range imageSummaries {
 		for _, name := range imageSummary.RepoTags {
 			idx := strings.LastIndex(name, "/")
-			if strings.HasPrefix(name[idx+1:], appName+"-") {
-				commands = append(commands, dockerCommand(name))
+			if strings.HasPrefix(name[idx+1:], "forensicstore-") {
+				commands = append(commands, dockerCommand(name, imageSummary.Labels))
 			}
 		}
 	}
@@ -63,23 +64,32 @@ func DockerCommands() []*cobra.Command {
 	return commands
 }
 
-func dockerCommand(image string) *cobra.Command {
+func dockerCommand(image string, labels map[string]string) *cobra.Command {
 	var dockerUser, dockerPassword, dockerServer string
+
+	name := image[14:]
+	parts := strings.Split(name, ":")
+	name = parts[0]
+
 	cmd := &cobra.Command{
-		Use: image,
+		Use:   name,
+		Short: "(docker: " + image + ")",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var auth types.AuthConfig
 			auth.Username = dockerUser
 			auth.Password = dockerPassword
 			auth.ServerAddress = dockerServer
 
-			for _, url := range args {
-				i := 0
-				cmd.VisitParents(func(_ *cobra.Command) {
-					i++
-				})
+			i := 1
+			cmd.VisitParents(func(_ *cobra.Command) {
+				i++
+			})
 
-				err := docker(image, os.Args[i:], true, auth, url)
+			for _, url := range args {
+				mounts := map[string]string{
+					url: "store",
+				}
+				_, err := docker(image, os.Args[i:], auth, mounts)
 				if err != nil {
 					return err
 				}
@@ -90,74 +100,78 @@ func dockerCommand(image string) *cobra.Command {
 	cmd.PersistentFlags().StringVar(&dockerUser, "docker-user", "", "docker registry username")
 	cmd.PersistentFlags().StringVar(&dockerPassword, "docker-password", "", "docker registry password")
 	cmd.PersistentFlags().StringVar(&dockerServer, "docker-server", "", "docker registry server")
+
+	if use, ok := labels["use"]; ok {
+		cmd.Use = use
+	}
+	if short, ok := labels["short"]; ok {
+		cmd.Short = short + " (docker: " + image + ")"
+	}
+
 	return cmd
 }
 
-func docker(image string, args []string, pull bool, auth types.AuthConfig, storePath string) error {
-	fmt.Println(image, args, storePath)
-	return nil
+func docker(image string, args []string, auth types.AuthConfig, mountDirs map[string]string) (io.ReadCloser, error) {
+	fmt.Println(image, args, mountDirs)
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	if pull {
-		err = pullImage(ctx, cli, image, auth)
-		if err != nil {
-			return err
+	for localDir := range mountDirs {
+		// create directory if not exists
+		_, err = os.Open(localDir)
+		if os.IsNotExist(err) {
+			log.Println("creating directory", localDir)
+			err = os.MkdirAll(localDir, os.ModePerm)
+			if err != nil {
+				return nil, err
+			}
+		} else if err != nil {
+			return nil, err
+		}
+
+		if localDir[1] == ':' {
+			mountDirs[localDir] = "/" + strings.ToLower(string(localDir[0])) + filepath.ToSlash(localDir[2:])
 		}
 	}
 
-	workingDir := storePath
-
-	// create directory if not exists
-	_, err = os.Open(workingDir)
-	if os.IsNotExist(err) {
-		log.Println("creating directory", workingDir)
-		err = os.MkdirAll(workingDir, os.ModePerm)
-		if err != nil {
-			return err
-		}
-	} else if err != nil {
-		return err
-	}
-
-	if workingDir[1] == ':' {
-		workingDir = "/" + strings.ToLower(string(workingDir[0])) + filepath.ToSlash(workingDir[2:])
-	}
-
-	resp, err := createContainer(ctx, cli, image, args, workingDir)
+	resp, err := createContainer(ctx, cli, image, args, mountDirs)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
-		return err
+		return nil, err
 	}
 
 	statusChannel, errChannel := cli.ContainerWait(ctx, resp.ID, container.WaitConditionNotRunning)
 	select {
 	case err := <-errChannel:
 		if err != nil {
-			return err
+			return nil, err
 		}
 	case <-statusChannel:
 	}
 
 	out, err := cli.ContainerLogs(ctx, resp.ID, types.ContainerLogsOptions{ShowStdout: true})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// stdcopy.StdCopy(os.Stdout, os.Stderr, out)
 	// _, err = ioutil.ReadAll(out)
-	_, err = io.Copy(log.Writer(), out)
-	return err
+	// _, err = io.Copy(log.Writer(), out)
+	return out, err
 }
 
-func createContainer(ctx context.Context, cli *client.Client, image string, args []string, workingDir string) (container.ContainerCreateCreatedBody, error) {
-	mounts := []mount.Mount{{Type: mount.TypeBind, Source: workingDir, Target: "/store"}}
+func createContainer(ctx context.Context, cli *client.Client, image string, args []string, mountDirs map[string]string) (container.ContainerCreateCreatedBody, error) {
+
+	var mounts []mount.Mount
+	for localDir, containerDir := range mountDirs {
+		mounts = append(mounts, mount.Mount{Type: mount.TypeBind, Source: localDir, Target: "/" + containerDir})
+	}
 
 	/*
 		// add transit dir if import or export
@@ -172,34 +186,11 @@ func createContainer(ctx context.Context, cli *client.Client, image string, args
 		}
 	*/
 
-
-	resp, err := cli.ContainerCreate(
+	return cli.ContainerCreate(
 		ctx,
 		&container.Config{Image: image, Cmd: args, Tty: true, WorkingDir: "/store"},
-		&container.HostConfig{Mounts: mounts},
+		&container.HostConfig{Mounts: mounts}, // , AutoRemove: true
 		nil,
 		"",
 	)
-	if err != nil {
-		return container.ContainerCreateCreatedBody{}, err
-	}
-	return resp, nil
-}
-
-func pullImage(ctx context.Context, cli *client.Client, image string, auth types.AuthConfig) error {
-	body, err := cli.RegistryLogin(ctx, auth)
-	if err != nil {
-		return err
-	}
-	log.Println("login", body)
-
-	reader, err := cli.ImagePull(ctx, image, types.ImagePullOptions{})
-	if err != nil {
-		return err
-	}
-	_, err = io.Copy(os.Stderr, reader)
-	if err != nil {
-		return err
-	}
-	return nil
 }

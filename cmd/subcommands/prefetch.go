@@ -24,12 +24,14 @@
 package subcommands
 
 import (
-	"github.com/forensicanalysis/forensicstore/goforensicstore"
-	"github.com/spf13/cobra"
 	"path"
 	"strings"
 	"time"
+
+	"github.com/spf13/cobra"
 	"www.velocidex.com/golang/go-prefetch"
+
+	"github.com/forensicanalysis/forensicstore/goforensicstore"
 )
 
 func init() {
@@ -40,8 +42,8 @@ func Prefetch() *cobra.Command {
 	var filtersets []string
 	cmd := &cobra.Command{
 		Use:   "prefetch",
-		Short: "Parse prefetch files",
-		Args:  requireStore,
+		Short: "Process prefetch files",
+		Args:  RequireStore,
 		RunE: func(_ *cobra.Command, args []string) error {
 			filter := extractFilter(filtersets)
 

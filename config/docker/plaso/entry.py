@@ -25,6 +25,7 @@ import logging
 import os
 import subprocess
 import sys
+import json
 
 import forensicstore
 
@@ -70,16 +71,14 @@ def main():
     for file in files:
         subprocess.run(
             ["log2timeline.py", "--status_view", "none", "--logfile", "test.log", "Plaso/events.plaso", file],
-            check=True
-        )
+            check=True)
 
     # TODO: add logfile to forensicstore
 
-    subprocess.run(
-        ["psort.py", "--status_view", "none", "-o", "forensicstore", "-w", "/store/", "Plaso/events.plaso"],
-        check=True
-    )
+    subprocess.run(["psort.py", "--status_view", "none", "-o", "forensicstore", "-w", "/store/", "Plaso/events.plaso"],
+                   check=True)
 
 
 if __name__ == '__main__':
+    sys.exit(0)
     main()

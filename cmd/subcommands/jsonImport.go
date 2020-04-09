@@ -26,8 +26,9 @@ package subcommands
 import (
 	"encoding/json"
 	"errors"
-	"github.com/spf13/cobra"
 	"io/ioutil"
+
+	"github.com/spf13/cobra"
 
 	"github.com/forensicanalysis/forensicstore/goforensicstore"
 	"github.com/forensicanalysis/forensicstore/gojsonlite"
@@ -48,7 +49,7 @@ func JSONImport() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			err = requireStore(cmd, args)
+			err = RequireStore(cmd, args)
 			if err != nil {
 				return err
 			}

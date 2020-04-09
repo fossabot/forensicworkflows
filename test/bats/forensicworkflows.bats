@@ -30,16 +30,28 @@ teardown() {
   rm -rf $TESTDIR
 }
 
-@test "import json" {
+@test "run import-json (go)" {
   forensicstore create $TESTDIR/test.forensicstore
   run forensicworkflows run import-json --type import --file test/data/import.json $TESTDIR/test.forensicstore
   [ "$status" -eq 0 ]
 }
 
-@test "process single (prefetch)" {
+@test "run prefetch (go)" {
   cp -r test/data/example1.forensicstore $TESTDIR/example1.forensicstore
   [ -f "$TESTDIR/example1.forensicstore/item.db" ]
   forensicworkflows run prefetch $TESTDIR/example1.forensicstore
+}
+
+@test "run usb (python)" {
+  cp -r test/data/example1.forensicstore $TESTDIR/example1.forensicstore
+  [ -f "$TESTDIR/usb.forensicstore/item.db" ]
+  forensicworkflows run usb $TESTDIR/example1.forensicstore
+}
+
+@test "run plaso (docker)" {
+  cp -r test/data/example1.forensicstore $TESTDIR/example1.forensicstore
+  [ -f "$TESTDIR/usb.forensicstore/item.db" ]
+  forensicworkflows run plaso $TESTDIR/example1.forensicstore
 }
 
 # @test "process workflow" {
@@ -50,7 +62,7 @@ teardown() {
 #   [ "$status" -eq 0 ]
 # }
 
-@test "export json" {
+@test "run export-json (go)" {
   cp -r test/data/example1.forensicstore $TESTDIR/example3.forensicstore
   [ -f "$TESTDIR/example3.forensicstore/item.db" ]
   run forensicworkflows run export-json --file $TESTDIR/export.json $TESTDIR/example3.forensicstore

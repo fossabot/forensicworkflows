@@ -7,3 +7,5 @@ coverage.xml
 
 test/data/*
 !test/data/import.json
+
+.DS_Store

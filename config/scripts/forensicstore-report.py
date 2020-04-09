@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright (c) 2019 Siemens AG
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -18,49 +18,41 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
-# Author(s): Demian Kellermann
+# Author(s): Jonas Plum
 
-""" Output table-like data to CSV files, quoting is enabled for every non-numeric field for easier parsing """
-
-import csv
 import json
+import os
 import sys
-from io import StringIO
 
 import forensicstore
+import jinja2
+from storeutil import combined_conditions
 
 
-def transform(store, items, name, header):
+def transform(store, items, template_name):
     if not items:
-        return []
-    report_name = name + ".csv"
-    with store.store_file("/".join(["Reports", report_name
-                                    ])) as (report_path, file_io):
-        string_io = StringIO()
-        csv_out = csv.DictWriter(string_io,
-                                 fieldnames=header,
-                                 delimiter=';',
-                                 extrasaction='ignore',
-                                 quoting=csv.QUOTE_NONNUMERIC)
-        csv_out.writeheader()
-        csv_out.writerows(items)
-        string_io.seek(0)
-        file_io.write(string_io.read().encode('utf-8'))
-        return [{
-            "type": "report",
-            "report_path": report_path,
-            "format": "csv"
-        }]
+        return None
+    dir_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "templates")
+    template_loader = jinja2.FileSystemLoader(searchpath=dir_path)
+    template_env = jinja2.Environment(loader=template_loader, autoescape=True)
+
+    template = template_env.get_template(template_name)
+    output = template.render(data=list(items))
+
+    report_name = template_name.split(".")[0] + ".md"
+    with store.store_file("Reports/" + report_name) as (report_path, file_io):
+        file_io.write(output.encode('utf-8'))
+        return {"type": "report", "report_path": report_path, "format": "markdown"}
 
 
 def main():
     if len(sys.argv) > 1 and sys.argv[1] == "info":
-        print(json.dumps({"Use": "usb", "Short": "Process usb artifacts"}))
+        print(json.dumps({"Use": "report", "Short": "Generate markdown reports"}))
         sys.exit(0)
     store = forensicstore.connect(".")
-    items = list(store.select(sys.argv[1]))
-    results = transform(store, items, sys.argv[1], sys.argv[2:])
-    for result in results:
+    items = list(store.select(sys.argv[1], combined_conditions(None)))
+    result = transform(store, items, sys.argv[2])
+    if result:
         store.insert(result)
     store.close()
 

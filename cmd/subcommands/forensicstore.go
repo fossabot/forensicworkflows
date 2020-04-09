@@ -24,10 +24,11 @@
 package subcommands
 
 import (
-	"github.com/spf13/cobra"
 	"io"
 	"path/filepath"
 	"strings"
+
+	"github.com/spf13/cobra"
 
 	"github.com/imdario/mergo"
 
@@ -48,6 +49,10 @@ func ForensicStoreImport() *cobra.Command {
 		Use:   "import-forensicstore",
 		Short: "Import forensicstore files",
 		Args: func(cmd *cobra.Command, args []string) error {
+			err := RequireStore(cmd, args)
+			if err != nil {
+				return err
+			}
 			return cmd.MarkFlagRequired("file")
 		},
 		RunE: func(_ *cobra.Command, args []string) error {

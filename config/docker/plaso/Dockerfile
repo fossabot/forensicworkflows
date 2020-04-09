@@ -21,6 +21,7 @@
 
 FROM log2timeline/plaso:20200227
 
+
 RUN apt-get update && apt-get install -y python3-pip
 RUN pip3 install -v forensicstore
 
@@ -35,3 +36,5 @@ RUN chmod +x /entry.py
 WORKDIR /store
 ENTRYPOINT ["python3", "/entry.py"]
 # ENTRYPOINT ["/bin/sh", "-c", "mkdir -p Plaso && log2timeline.py --status_view none --logfile test.log Plaso/events.plaso /store/WindowsDeviceSetup && psort.py --status_view none -o forensicstore -w /store/ Plaso/events.plaso"]
+
+LABEL use="plaso" short="Process with plaso"

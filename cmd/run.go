@@ -25,20 +25,17 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/forensicanalysis/forensicworkflows/cmd/subcommands"
-	"github.com/forensicanalysis/forensicworkflows/daggy"
 )
 
 // Run is a subcommand to run a single task
 func Run() *cobra.Command {
+	// Install().Execute()
 	command := &cobra.Command{
 		Use:   "run",
 		Short: "Run a workflow on the forensicstore",
-		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			return Install().Execute()
-		},
 	}
 	command.AddCommand(subcommands.Commands...)
-	command.AddCommand(daggy.DockerCommands()...)
-	command.AddCommand(daggy.ScriptCommands()...)
+	command.AddCommand(dockerCommands()...)
+	command.AddCommand(scriptCommands()...)
 	return command
 }

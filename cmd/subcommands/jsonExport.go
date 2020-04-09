@@ -25,9 +25,10 @@ package subcommands
 
 import (
 	"encoding/json"
+	"os"
+
 	"github.com/forensicanalysis/forensicstore/goforensicstore"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 func init() {
@@ -40,7 +41,7 @@ func JSONExport() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "export-json",
 		Short: "Export json files",
-		Args:  requireStore,
+		Args:  RequireStore,
 		RunE: func(_ *cobra.Command, args []string) error {
 			filter := extractFilter(filtersets)
 

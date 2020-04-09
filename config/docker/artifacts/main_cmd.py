@@ -26,6 +26,7 @@ import argparse
 import logging
 import os
 import sys
+import json
 
 import encryption_handlers
 import fs

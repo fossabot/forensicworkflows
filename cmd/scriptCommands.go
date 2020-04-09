@@ -21,7 +21,7 @@
  * Author(s): Jonas Plum
  */
 
-package daggy
+package cmd
 
 import (
 	"encoding/json"
@@ -33,11 +33,13 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+
+	"github.com/forensicanalysis/forensicworkflows/cmd/subcommands"
 )
 
 const appName = "forensicstore"
 
-func ScriptCommands() []*cobra.Command {
+func scriptCommands() []*cobra.Command {
 	dir, _ := os.UserConfigDir()
 	scriptDir := filepath.Join(dir, "forensicstore", "scripts")
 	infos, _ := ioutil.ReadDir(scriptDir)
@@ -55,7 +57,7 @@ func ScriptCommands() []*cobra.Command {
 func scriptCommand(path string) *cobra.Command {
 	var cmd cobra.Command
 
-	sh := exec.Command("sh", "-c", filepath.ToSlash(path)+" info")
+	sh := exec.Command("sh", "-c", `"`+filepath.ToSlash(path)+`" info`)
 	sh.Stderr = log.Writer()
 
 	out, err := sh.Output()
@@ -71,8 +73,23 @@ func scriptCommand(path string) *cobra.Command {
 	if cmd.Use == "" {
 		cmd.Use = filepath.Base(path)
 	}
+	cmd.Short += " (script)"
+	cmd.Args = subcommands.RequireStore
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		return exec.Command(path, args...).Run()
+		for _, url := range args {
+			shellArgs := []string{"-c", `"` + filepath.ToSlash(path) + `"`}
+			shellArgs = append(shellArgs, args...)
+			script := exec.Command("sh", shellArgs...)
+			script.Dir = url
+			script.Stdout = os.Stdout
+			script.Stderr = log.Writer()
+			err := script.Run()
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+
 	}
 	return &cmd
 }

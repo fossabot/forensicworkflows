@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright (c) 2019 Siemens AG
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of

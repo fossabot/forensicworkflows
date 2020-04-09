@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # This file contains two code parts licensed under different licenses.
 #
 # Copyright (c) 2019 Siemens AG

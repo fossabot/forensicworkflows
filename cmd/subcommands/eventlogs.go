@@ -25,14 +25,15 @@ package subcommands
 
 import (
 	"encoding/json"
-	"github.com/Velocidex/ordereddict"
-	"github.com/forensicanalysis/forensicstore/goforensicstore"
-	"github.com/spf13/cobra"
 	"io"
 	"path"
 	"strings"
+
+	"github.com/Velocidex/ordereddict"
+	"github.com/spf13/cobra"
 	"www.velocidex.com/golang/evtx"
 
+	"github.com/forensicanalysis/forensicstore/goforensicstore"
 	"github.com/forensicanalysis/forensicstore/gostore"
 )
 
@@ -44,8 +45,8 @@ func Eventlogs() *cobra.Command {
 	var filtersets []string
 	cmd := &cobra.Command{
 		Use:   "eventlogs",
-		Short: "Parse eventlogs into single events",
-		Args:  requireStore,
+		Short: "Process eventlogs into single events",
+		Args:  RequireStore,
 		RunE: func(_ *cobra.Command, args []string) error {
 			filter := extractFilter(filtersets)
 
