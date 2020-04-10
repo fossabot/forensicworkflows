@@ -83,7 +83,7 @@ def transform(obj):
 
 
 def main():
-    if len(sys.argv) > 0 and sys.argv[1] == "info":
+    if len(sys.argv) > 1 and sys.argv[1] == "info":
         print(json.dumps({"Use": "shimcache", "Short": "Process the shimcache"}))
         sys.exit(0)
     store = forensicstore.connect(".")

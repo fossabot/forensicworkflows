@@ -35,7 +35,7 @@ def data():
 
 def mkdata():
     tmpdir = tempfile.mkdtemp()
-    shutil.copytree("test", os.path.join(tmpdir))
+    shutil.copytree(os.path.join("test", "data"), os.path.join(tmpdir, "data"))
     return os.path.join(tmpdir, "data")
 
 

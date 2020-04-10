@@ -29,7 +29,7 @@ import tempfile
 import forensicstore
 import pytest
 
-sys.path.append("scripts")
+sys.path.append("config/scripts")
 usb = importlib.import_module("forensicstore-usb")
 
 

@@ -28,7 +28,7 @@ import tempfile
 import forensicstore
 import pytest
 
-sys.path.append("scripts")
+sys.path.append("config/scripts")
 networking = importlib.import_module("forensicstore-networking")
 
 

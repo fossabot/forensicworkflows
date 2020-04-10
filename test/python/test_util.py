@@ -34,7 +34,7 @@
 import os
 import sys
 
-sys.path.append("scripts")
+sys.path.append("config/scripts")
 import storeutil
 
 
