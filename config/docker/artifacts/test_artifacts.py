@@ -35,7 +35,7 @@ def data():
 
 def mkdata():
     tmpdir = tempfile.mkdtemp()
-    shutil.copytree("test", os.path.join(tmpdir, "data"))
+    shutil.copytree("test", os.path.join(tmpdir))
     return os.path.join(tmpdir, "data")
 
 
@@ -51,12 +51,12 @@ def test_docker(data):
 
     # build image
     image_tag = "test_artifacts"
-    image, _ = client.images.build(path="docker/imports/artifacts/", tag=image_tag)
+    image, _ = client.images.build(path="config/docker/artifacts/", tag=image_tag)
 
     # run image
     store_path = os.path.abspath(os.path.join(data, "example.forensicstore"))
     store_path_unix = to_unix_path(store_path)
-    import_path = os.path.abspath(os.path.join(data, "data", "win10_mock.vhd"))
+    import_path = os.path.abspath(os.path.join(data, "win10_mock.vhd"))
     import_path_unix = to_unix_path(import_path)
     volumes = {
         store_path_unix: {'bind': '/store', 'mode': 'rw'},

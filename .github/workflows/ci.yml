@@ -122,7 +122,7 @@ jobs:
         uses: actions/checkout@v1
       - run: pip install -r requirements.txt
       - name: Python Lint
-        run: pylint scripts --rcfile test/.pylintrc
+        run: pylint config/scripts --rcfile test/.pylintrc
         shell: bash
       - name: Download testdata
         run: bash test/download_testdata.sh
@@ -152,7 +152,7 @@ jobs:
         uses: actions/checkout@v1
       - run: pip install -r requirements.txt
       - name: Python Lint
-        run: pylint docker --rcfile test/.pylintrc
+        run: pylint config/docker --rcfile test/.pylintrc
         shell: bash
         continue-on-error: true
       - name: Download testdata

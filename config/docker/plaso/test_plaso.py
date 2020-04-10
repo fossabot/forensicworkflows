@@ -31,7 +31,7 @@ import pytest
 @pytest.fixture
 def data():
     tmpdir = tempfile.mkdtemp()
-    shutil.copytree("test", os.path.join(tmpdir, "data"))
+    shutil.copytree("test", os.path.join(tmpdir))
     return os.path.join(tmpdir, "data")
 
 
@@ -40,10 +40,10 @@ def test_docker(data):
 
     # build image
     image_tag = "test_docker"
-    image, _ = client.images.build(path="docker/process/plaso/", tag=image_tag)
+    image, _ = client.images.build(path="config/docker/plaso/", tag=image_tag)
 
     # run image
-    store_path = os.path.abspath(os.path.join(data, "data", "example1.forensicstore"))
+    store_path = os.path.abspath(os.path.join(data, "example1.forensicstore"))
     store_path_unix = store_path
     if store_path[1] == ":":
         store_path_unix = "/" + store_path.lower()[0] + store_path[2:].replace("\\", "/")
