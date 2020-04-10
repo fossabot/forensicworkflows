@@ -105,8 +105,8 @@ github.com/dylanmei/winrmtest v0.0.0-20190225150635-99b7fe2fddf1/go.mod h1:lcy9/
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/fatih/structs v1.1.0 h1:Q7juDM0QtcnhCpeyLGQKyg4TOIghuNXrkL32pHAUMxo=
 github.com/fatih/structs v1.1.0/go.mod h1:9NiDSp5zOcgEDl+j00MP/WkGVPOlPRLejGD8Ga6PJ7M=
-github.com/forensicanalysis/forensicstore v0.14.0 h1:nZitE2zwsk/I+0WeQi8QNkZSm0ZX9O5y464ztANDUpM=
-github.com/forensicanalysis/forensicstore v0.14.0/go.mod h1:4H5IPh9CfRNkiJS5STQe2bICcE8+rcoBGr+stLHOME4=
+github.com/forensicanalysis/forensicstore v0.14.1 h1:JoE+484xo1QG1b51t9rrBuOPuz59fs76ij8pxvlTG5k=
+github.com/forensicanalysis/forensicstore v0.14.1/go.mod h1:4H5IPh9CfRNkiJS5STQe2bICcE8+rcoBGr+stLHOME4=
 github.com/forensicanalysis/fslib v0.12.1 h1:T0qnZTrvYFUqeP9At821fUqEyWz5RCTzkA7zqQmqe/A=
 github.com/forensicanalysis/fslib v0.12.1/go.mod h1:yIYvtYTjSqsFKYobw9TrIXy3glZV/wXBaRMagLnwDvU=
 github.com/fsnotify/fsnotify v1.4.7 h1:IXs+QLmnXW2CcXuY+8Mzv/fWEsPGWxqefPtCP5CnV9I=

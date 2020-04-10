@@ -108,7 +108,6 @@ jobs:
           name: forensicworkflows ${{ matrix.os }}
           path: bin
 
-
   scripts:
     name: Python Script Plugin Tests
     runs-on: ${{ matrix.os }}
@@ -129,7 +128,7 @@ jobs:
         run: bash test/download_testdata.sh
         shell: bash
       - name: Python Test
-        run: pytest -v --cov-config .coveragerc --cov-report=xml --cov=scripts test/python
+        run: pytest -v --cov-config .coveragerc --cov-report=xml --cov=config/scripts test/python
         shell: bash
       - name: Upload coverage
         env:
@@ -160,7 +159,7 @@ jobs:
         run: bash test/download_testdata.sh
         shell: bash
       - name: Python Test
-        run: pytest -v --cov-config .coveragerc --cov-report=xml --cov=docker docker
+        run: pytest -v --cov-config .coveragerc --cov-report=xml --cov=config/docker config/docker
         shell: bash
       - name: Upload coverage
         env:

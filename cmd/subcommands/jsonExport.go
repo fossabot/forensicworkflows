@@ -50,6 +50,7 @@ func JSONExport() *cobra.Command {
 				if err != nil {
 					return err
 				}
+				defer store.Close()
 
 				items, err := store.All()
 				if err != nil {

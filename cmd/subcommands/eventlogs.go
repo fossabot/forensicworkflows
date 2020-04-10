@@ -55,6 +55,7 @@ func Eventlogs() *cobra.Command {
 				if err != nil {
 					return err
 				}
+				defer store.Close()
 
 				fileItems, err := store.Select("file", filter)
 				if err != nil {

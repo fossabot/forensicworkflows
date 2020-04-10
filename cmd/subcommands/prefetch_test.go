@@ -24,10 +24,11 @@
 package subcommands
 
 import (
-	"github.com/forensicanalysis/forensicstore/goforensicstore"
 	"log"
 	"path/filepath"
 	"testing"
+
+	"github.com/forensicanalysis/forensicstore/goforensicstore"
 )
 
 func TestPrefetchPlugin_Run(t *testing.T) {
@@ -68,6 +69,7 @@ func TestPrefetchPlugin_Run(t *testing.T) {
 			if err != nil {
 				t.Errorf("goforensicstore.NewJSONLite() error = %v, wantErr %v", err, tt.wantErr)
 			}
+			defer store.Close()
 			items, err := store.Select("prefetch", nil)
 			if err != nil {
 				t.Errorf("store.All() error = %v, wantErr %v", err, tt.wantErr)

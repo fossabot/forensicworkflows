@@ -63,6 +63,7 @@ func JSONImport() *cobra.Command {
 				if err != nil {
 					return err
 				}
+				defer store.Close()
 
 				b, err := ioutil.ReadFile(file) // #nosec
 				if err != nil {

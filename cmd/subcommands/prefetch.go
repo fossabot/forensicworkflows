@@ -24,7 +24,6 @@
 package subcommands
 
 import (
-	"path"
 	"strings"
 	"time"
 
@@ -52,6 +51,7 @@ func Prefetch() *cobra.Command {
 				if err != nil {
 					return err
 				}
+				defer store.Close()
 
 				fileItems, err := store.Select("file", filter)
 				if err != nil {
@@ -64,12 +64,13 @@ func Prefetch() *cobra.Command {
 							if strings.HasSuffix(name, ".pf") {
 								if exportPath, ok := item["export_path"]; ok {
 									if exportPath, ok := exportPath.(string); ok {
-										file, err := store.Open(path.Join(url, exportPath))
+										file, err := store.LoadFile(exportPath)
 										if err != nil {
 											return err
 										}
 
 										prefetchInfo, err := prefetch.LoadPrefetch(file)
+										file.Close()
 										if err != nil {
 											return err
 										}

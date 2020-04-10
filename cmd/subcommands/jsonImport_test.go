@@ -24,10 +24,11 @@
 package subcommands
 
 import (
-	"github.com/forensicanalysis/forensicstore/goforensicstore"
 	"log"
 	"path/filepath"
 	"testing"
+
+	"github.com/forensicanalysis/forensicstore/goforensicstore"
 )
 
 func TestJSONImportPlugin_Run(t *testing.T) {
@@ -66,6 +67,7 @@ func TestJSONImportPlugin_Run(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
+			defer store.Close()
 
 			items, err := store.Select("import", nil)
 			if err != nil {

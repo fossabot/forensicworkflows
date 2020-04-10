@@ -63,6 +63,7 @@ func ForensicStoreImport() *cobra.Command {
 				if err != nil {
 					return err
 				}
+				defer store.Close()
 
 				err = jsonLite(store, file, filter)
 				if err != nil {
@@ -107,7 +108,10 @@ func jsonLite(db gostore.Store, url string, filter daggy.Filter) (err error) {
 				if err != nil {
 					return err
 				}
-				if _, err = io.Copy(writer, reader); err != nil {
+				_, err = io.Copy(writer, reader)
+				reader.Close()
+				writer.Close()
+				if err != nil {
 					return err
 				}
 				if err := mergo.Merge(&item, gojsonlite.Item{field: dstPath}); err != nil {

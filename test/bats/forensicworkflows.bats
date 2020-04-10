@@ -43,14 +43,14 @@ teardown() {
 }
 
 @test "run usb (python)" {
-  cp -r test/data/example1.forensicstore $TESTDIR/example1.forensicstore
+  cp -r test/data/usb.forensicstore $TESTDIR/usb.forensicstore
   [ -f "$TESTDIR/usb.forensicstore/item.db" ]
-  forensicworkflows run usb $TESTDIR/example1.forensicstore
+  forensicworkflows run usb $TESTDIR/usb.forensicstore
 }
 
 @test "run plaso (docker)" {
   cp -r test/data/example1.forensicstore $TESTDIR/example1.forensicstore
-  [ -f "$TESTDIR/usb.forensicstore/item.db" ]
+  [ -f "$TESTDIR/example1.forensicstore/item.db" ]
   forensicworkflows run plaso $TESTDIR/example1.forensicstore
 }
 

@@ -40,6 +40,12 @@ func TestJSONLitePlugin_Run(t *testing.T) {
 	log.Println("Setup done")
 	defer cleanup(storeDir)
 
+	store, err := goforensicstore.NewJSONLite(filepath.Join(storeDir, "example.forensicstore"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	store.Close()
+
 	type args struct {
 		url  string
 		args []string
@@ -63,11 +69,12 @@ func TestJSONLitePlugin_Run(t *testing.T) {
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Run() error = %v, wantErr %v", err, tt.wantErr)
 			}
+
 			store, err := goforensicstore.NewJSONLite(tt.args.url)
 			if err != nil {
 				t.Fatal(err)
 			}
-
+			defer store.Close()
 			items, err := store.All()
 			if err != nil {
 				t.Fatal(err)
