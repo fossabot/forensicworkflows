@@ -161,6 +161,9 @@ func buildDockerfiles(ctx context.Context, cli *client.Client, auth types.AuthCo
 	dockerDir := filepath.Join(configDir, "forensicstore", "docker") // TODO: appname
 	infos, err := ioutil.ReadDir(dockerDir)
 	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
 		return err
 	}
 	for _, info := range infos {

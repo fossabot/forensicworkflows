@@ -48,11 +48,11 @@ teardown() {
   forensicworkflows run usb $TESTDIR/usb.forensicstore
 }
 
-@test "run plaso (docker)" {
-  cp -r test/data/example1.forensicstore $TESTDIR/example1.forensicstore
-  [ -f "$TESTDIR/example1.forensicstore/item.db" ]
-  forensicworkflows run plaso $TESTDIR/example1.forensicstore
-}
+# @test "run plaso (docker)" {
+#   cp -r test/data/example1.forensicstore $TESTDIR/example1.forensicstore
+#   [ -f "$TESTDIR/example1.forensicstore/item.db" ]
+#   forensicworkflows run plaso $TESTDIR/example1.forensicstore
+# }
 
 # @test "process workflow" {
 #   cp -r test/data/example1.forensicstore $TESTDIR/example2.forensicstore
