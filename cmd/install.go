@@ -142,7 +142,7 @@ func unpack() error {
 		if err != nil {
 			return err
 		}
-		dstFile, err := os.OpenFile(filepath.Join(appDir, unpackDir), os.O_RDWR|os.O_CREATE, 0700)
+		dstFile, err := os.OpenFile(filepath.Join(appDir, unpackDir), os.O_RDWR|os.O_CREATE, 0700) // #nosec
 		if err != nil {
 			return err
 		}

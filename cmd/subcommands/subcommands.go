@@ -27,9 +27,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/forensicanalysis/forensicworkflows/daggy"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+
+	"github.com/forensicanalysis/forensicworkflows/daggy"
 )
 
 func RequireStore(_ *cobra.Command, args []string) error {

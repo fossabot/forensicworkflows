@@ -121,7 +121,7 @@ func docker(image string, args []string, auth types.AuthConfig, mountDirs map[st
 
 	for localDir := range mountDirs {
 		// create directory if not exists
-		_, err = os.Open(localDir)
+		_, err = os.Open(localDir) // #nosec
 		if os.IsNotExist(err) {
 			log.Println("creating directory", localDir)
 			err = os.MkdirAll(localDir, os.ModePerm)
@@ -167,7 +167,6 @@ func docker(image string, args []string, auth types.AuthConfig, mountDirs map[st
 }
 
 func createContainer(ctx context.Context, cli *client.Client, image string, args []string, mountDirs map[string]string) (container.ContainerCreateCreatedBody, error) {
-
 	var mounts []mount.Mount
 	for localDir, containerDir := range mountDirs {
 		mounts = append(mounts, mount.Mount{Type: mount.TypeBind, Source: localDir, Target: "/" + containerDir})

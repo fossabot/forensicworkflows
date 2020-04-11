@@ -27,8 +27,9 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/forensicanalysis/forensicstore/goforensicstore"
 	"github.com/spf13/cobra"
+
+	"github.com/forensicanalysis/forensicstore/goforensicstore"
 )
 
 func init() {
@@ -82,7 +83,9 @@ func JSONExport() *cobra.Command {
 				}
 
 				_, err = f.WriteString("]\n")
-				return err
+				if err != nil {
+					return err
+				}
 			}
 			return nil
 		},

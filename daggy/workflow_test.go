@@ -21,24 +21,36 @@
 
 package daggy
 
-/*
-func setup() (storeDir, pluginDir string, err error) {
+import (
+	"io/ioutil"
+	"log"
+	"os"
+	"path/filepath"
+	"testing"
+
+	"github.com/otiai10/copy"
+	"github.com/spf13/cobra"
+
+	"github.com/forensicanalysis/forensicstore/goforensicstore"
+)
+
+func setup() (storeDir string, err error) {
 	tempDir, err := ioutil.TempDir("", "forensicstoreprocesstest")
 	if err != nil {
-		return "", "", err
+		return "", err
 	}
 	storeDir = filepath.Join(tempDir, "test")
 	err = os.MkdirAll(storeDir, 0755)
 	if err != nil {
-		return "", "", err
+		return "", err
 	}
 
 	err = copy.Copy(filepath.Join("..", "test"), storeDir)
 	if err != nil {
-		return "", "", err
+		return "", err
 	}
 
-	return storeDir, pluginDir, nil
+	return storeDir, nil
 }
 
 func cleanup(folders ...string) (err error) {
@@ -50,7 +62,6 @@ func cleanup(folders ...string) (err error) {
 	}
 	return nil
 }
-
 
 func Test_processJob(t *testing.T) {
 	log.Println("Start setup")
@@ -73,12 +84,10 @@ func Test_processJob(t *testing.T) {
 		wantCount int
 		wantErr   bool
 	}{
-		{"dummy plugin", "example1.forensicstore", args{"testtask", Task{Type: "plugin", Command: "example"}}, "example", 0, false},
-		{"script not existing", "example1.forensicstore", args{"testtask", Task{Type: "plugin", Command: "foo"}}, "", 0, true},
-		{"unknown type", "example1.forensicstore", args{"testtask", Task{Type: "foo", Command: "foo"}}, "", 0, true},
-		{"bash", "example1.forensicstore", args{"test bash", Task{Type: "bash", Command: "true"}}, "", 0, false},
-		{"bash fail", "example1.forensicstore", args{"test bash", Task{Type: "bash", Command: "false"}}, "", 0, true},
-		{"docker", "example1.forensicstore", args{"testtask", Task{Type: "docker", Command: "alpine"}}, "", 0, false},
+		{"dummy plugin", "example1.forensicstore", args{"testtask", Task{Command: "example"}}, "example", 0, false},
+		{"command not existing", "example1.forensicstore", args{"testtask", Task{Command: "foo"}}, "", 0, true},
+		// {"bash fail", "example1.forensicstore", args{"test bash", Task{Command: "false"}}, "", 0, true},
+		// {"docker", "example1.forensicstore", args{"testtask", Task{Command: "alpine"}}, "", 0, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -87,7 +96,7 @@ func Test_processJob(t *testing.T) {
 
 			plugins := map[string]*cobra.Command{"example": &cobra.Command{}}
 
-			if err := workflow.Run(filepath.Join(storeDir, tt.storeName), pluginDir, plugins, nil); (err != nil) != tt.wantErr {
+			if err := workflow.Run(filepath.Join(storeDir, tt.storeName), plugins); (err != nil) != tt.wantErr {
 				t.Errorf("runTask() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
@@ -111,4 +120,3 @@ func Test_processJob(t *testing.T) {
 		})
 	}
 }
-*/

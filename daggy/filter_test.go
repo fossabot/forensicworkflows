@@ -22,28 +22,10 @@
 package daggy
 
 import (
-	"reflect"
 	"testing"
 
 	"github.com/forensicanalysis/forensicstore/gostore"
 )
-
-func TestFilter_toCommandline(t *testing.T) {
-	tests := []struct {
-		name string
-		f    Filter
-		want []string
-	}{
-		// {"simple", []map[string]string{{"file": "exe", "path": "Windows"}, {"file": "dll", "path": "Downloads"}}, []string{"--filter", "file=exe,path=Windows", "--filter", "file=dll,path=Download"}},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.f.toCommandline(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("toCommandline() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
 
 func TestFilter_Match(t *testing.T) {
 	type args struct {

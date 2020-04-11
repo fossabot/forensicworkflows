@@ -22,14 +22,13 @@
 package cmd
 
 import (
-	"fmt"
-	"github.com/forensicanalysis/forensicworkflows/daggy"
-	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
 	"log"
 	"os"
-	"path"
-	"path/filepath"
+
+	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
+
+	"github.com/forensicanalysis/forensicworkflows/daggy"
 )
 
 // Workflow is a subcommand to run a forensic worklow
@@ -61,47 +60,20 @@ Those tasks can be defined to be run on the system itself or in a containerized 
 				log.Fatal("parsing failed: ", err)
 			}
 
-			// arguments := getArguments(cmd)
-			fmt.Println(workflow) //, arguments)
-			// tasksFunc(workflow, subcommands.Commands, "process", args, arguments)
+			commands := map[string]*cobra.Command{}
+			for _, command := range allCommands() {
+				commands[command.Use] = command
+			}
+
+			workflow.SetupGraph()
+			for _, url := range args {
+				err = workflow.Run(url, commands)
+				if err != nil {
+					log.Fatal("run failed: ", err)
+				}
+			}
 		},
 	}
 	command.Flags().String("workflow", "", "workflow definition file")
 	return command
 }
-
-func tasksFunc(workflow *daggy.Workflow, plugins map[string]*cobra.Command, processDir string, stores, arguments []string) {
-	workflow.SetupGraph()
-
-	// unpack scripts
-	err := unpack()
-	if err != nil {
-		log.Fatal("unpacking error: ", err)
-	}
-
-	for _, store := range stores {
-		// get store path
-		storePath, err := filepath.Abs(store)
-		if err != nil {
-			log.Println("abs: ", err)
-		}
-
-		// run workflow
-		err = workflow.Run(storePath, path.Join(processDir), plugins, arguments)
-		if err != nil {
-			log.Println("processing errors: ", err)
-		}
-	}
-}
-
-/*
-func getArguments(cmd *cobra.Command) daggy.Arguments {
-	arguments := daggy.Arguments{}
-	for name, unknownFlags := range cmd.Flags().UnknownFlags {
-		for _, unknownFlag := range unknownFlags {
-			arguments[name] = unknownFlag.Value
-		}
-	}
-	return arguments
-}
-*/

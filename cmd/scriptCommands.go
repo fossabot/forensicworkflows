@@ -57,10 +57,7 @@ func scriptCommands() []*cobra.Command {
 func scriptCommand(path string) *cobra.Command {
 	var cmd cobra.Command
 
-	sh := exec.Command("sh", "-c", `"`+filepath.ToSlash(path)+`" info`)
-	sh.Stderr = log.Writer()
-
-	out, err := sh.Output()
+	out, err := ioutil.ReadFile(path + ".info") // #nosec
 	if err != nil {
 		log.Println(path, err)
 	} else {
@@ -79,7 +76,7 @@ func scriptCommand(path string) *cobra.Command {
 		for _, url := range args {
 			shellArgs := []string{"-c", `"` + filepath.ToSlash(path) + `"`}
 			shellArgs = append(shellArgs, args...)
-			script := exec.Command("sh", shellArgs...)
+			script := exec.Command("sh", shellArgs...) // #nosec
 			script.Dir = url
 			script.Stdout = os.Stdout
 			script.Stderr = log.Writer()
@@ -89,7 +86,6 @@ func scriptCommand(path string) *cobra.Command {
 			}
 		}
 		return nil
-
 	}
 	return &cmd
 }

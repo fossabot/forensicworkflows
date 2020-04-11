@@ -28,25 +28,8 @@ import (
 	"github.com/forensicanalysis/forensicstore/gostore"
 )
 
-
-
 // A Filter is a list of mappings that should be used for a Task.
 type Filter []map[string]string
-
-func (f Filter) toCommandline() []string {
-	var cmd []string
-	for _, conditions := range f {
-		filterStr := ""
-		for key, value := range conditions {
-			if filterStr != "" {
-				filterStr += ","
-			}
-			filterStr += key + "=" + value
-		}
-		cmd = append(cmd, "--filter", filterStr)
-	}
-	return cmd
-}
 
 // Match tests if an item matches the filter.
 func (f Filter) Match(item gostore.Item) bool {

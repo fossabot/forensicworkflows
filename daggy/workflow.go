@@ -23,6 +23,7 @@ package daggy
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform/dag"
 	"github.com/hashicorp/terraform/tfdiags"
 	"github.com/spf13/cobra"
@@ -30,19 +31,15 @@ import (
 
 // A Task is a single element in a workflow.yml file.
 type Task struct {
-	Type      string              `yaml:"type"`
-	Requires  []string            `yaml:"requires"`
-	Command   string              `yaml:"command"` // shared
-	Arguments map[string][]string `yaml:"with"`
+	Command   string                 `yaml:"command"`
+	Arguments map[string]interface{} `yaml:"arguments"`
+	Requires  []string               `yaml:"requires"`
 }
 
 // Workflow can be used to parse workflow.yml files.
 type Workflow struct {
-	Tasks      map[string]Task `yaml:"tasks"`
-	graph      *dag.AcyclicGraph
-	workingDir string
-	pluginDir  string
-	plugins    map[string]*cobra.Command
+	Tasks map[string]Task `yaml:"tasks"`
+	graph *dag.AcyclicGraph
 }
 
 // SetupGraph creates a direct acyclic graph of tasks.
@@ -67,26 +64,28 @@ func (workflow *Workflow) SetupGraph() {
 }
 
 // Run walks the direct acyclic graph to execute each task.
-func (workflow *Workflow) Run(workingDir, pluginDir string, plugins map[string]*cobra.Command, arguments []string) error {
-	workflow.workingDir = workingDir
-	workflow.pluginDir = pluginDir
-	workflow.plugins = plugins
-
+func (workflow *Workflow) Run(workingDir string, plugins map[string]*cobra.Command) error {
 	w := &dag.Walker{Callback: func(v dag.Vertex) tfdiags.Diagnostics {
-		err := workflow.runTask(v.(string), arguments)
-		if err != nil {
-			return tfdiags.Diagnostics{tfdiags.Sourceless(tfdiags.Error, fmt.Sprint(v.(string)), err.Error())}
+		task := workflow.Tasks[v.(string)]
+
+		if plugin, ok := plugins[task.Command]; ok {
+			err := workflow.runTask(plugin, task)
+			if err != nil {
+				return tfdiags.Diagnostics{tfdiags.Sourceless(tfdiags.Error, fmt.Sprint(v.(string)), err.Error())}
+			}
+			return nil
 		}
-		return nil
+		return tfdiags.Diagnostics{tfdiags.Sourceless(tfdiags.Error, fmt.Sprint(v.(string)), "command not found")}
 	}}
 	w.Update(workflow.graph)
 	return w.Wait().Err()
 }
 
-func (workflow *Workflow) runTask(taskName string, arguments []string) error {
-	// task := workflow.Tasks[taskName]
-	//process := cmd.Process()
-	//process.SetArgs(append([]string{taskName}, arguments...))
-	//return process.Execute()
-	return nil
+func (workflow *Workflow) runTask(cmd *cobra.Command, task Task) error {
+	args := []string{}
+	for flag, value := range task.Arguments {
+		args = append(args, "--"+flag, fmt.Sprint(value))
+	}
+	cmd.SetArgs(args)
+	return cmd.Execute()
 }

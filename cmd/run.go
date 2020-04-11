@@ -34,8 +34,14 @@ func Run() *cobra.Command {
 		Use:   "run",
 		Short: "Run a workflow on the forensicstore",
 	}
-	command.AddCommand(subcommands.Commands...)
-	command.AddCommand(dockerCommands()...)
-	command.AddCommand(scriptCommands()...)
+	command.AddCommand(allCommands()...)
 	return command
+}
+
+func allCommands() []*cobra.Command {
+	var commands []*cobra.Command
+	commands = append(commands, subcommands.Commands...)
+	commands = append(commands, dockerCommands()...)
+	commands = append(commands, scriptCommands()...)
+	return commands
 }
