@@ -54,13 +54,13 @@ teardown() {
 #   forensicworkflows run plaso $TESTDIR/example1.forensicstore
 # }
 
-# @test "process workflow" {
-#   cp -r test/data/example1.forensicstore $TESTDIR/example2.forensicstore
-#   [ -f "$TESTDIR/example2.forensicstore/item.db" ]
-#   run forensicworkflows --workflow workflow.yml $TESTDIR/example2.forensicstore
-#   echo $output
-#   [ "$status" -eq 0 ]
-# }
+@test "process workflow" {
+  cp -r test/data/example1.forensicstore $TESTDIR/example2.forensicstore
+  [ -f "$TESTDIR/example2.forensicstore/item.db" ]
+  run forensicworkflows workflow --workflow workflow.yml $TESTDIR/example2.forensicstore
+  echo $output
+  [ "$status" -eq 0 ]
+}
 
 @test "run export-json (go)" {
   cp -r test/data/example1.forensicstore $TESTDIR/example3.forensicstore
