@@ -140,23 +140,29 @@ class USBForensicStoreExtractor:
         return usb_user_mounted_devices
 
     def _get_first_insert_timestamps(self, device_id):
-        fsf = self.forensicstore.remote_fs.open("WindowsDeviceSetup/setupapi.dev.log", mode='rb')
-        inital_timestamp = {"first_insert": None}
-        if device_id:
+        conditions = combined_conditions([{"name": "setupapi.dev.log"}])
+        items = self.forensicstore.select("file", conditions)
+        # fsf = self.forensicstore.remote_fs.open("WindowsDeviceSetup/setupapi.dev.log", mode='rb')
+        for item in items:
+            if "export_path" in item:
+                fsf = self.forensicstore.remote_fs.open(item["export_path"], mode='rb')
 
-            # Checks each line for the first insert timestamp in setupapi.dev.log
-            for line in fsf:
-                try:
-                    log_line = line.decode("utf-8")
-                    if "Device Install (Hardware initiated)" in log_line and device_id in log_line:
-                        splitted_log_line = next(fsf).decode("UTF-8").split(' ')
-                        date = splitted_log_line.pop().replace("\r\n", "")
-                        time = splitted_log_line.pop()
-                        inital_timestamp = {"first_insert": date + " " + time}
-                        break
+                inital_timestamp = {"first_insert": None}
+                if device_id:
 
-                except UnicodeDecodeError:
-                    pass
+                    # Checks each line for the first insert timestamp in setupapi.dev.log
+                    for line in fsf:
+                        try:
+                            log_line = line.decode("utf-8")
+                            if "Device Install (Hardware initiated)" in log_line and device_id in log_line:
+                                splitted_log_line = next(fsf).decode("UTF-8").split(' ')
+                                date = splitted_log_line.pop().replace("\r\n", "")
+                                time = splitted_log_line.pop()
+                                inital_timestamp = {"first_insert": date + " " + time}
+                                break
+
+                        except UnicodeDecodeError:
+                            pass
         return inital_timestamp
 
     @staticmethod
