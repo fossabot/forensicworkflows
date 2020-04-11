@@ -144,25 +144,26 @@ class USBForensicStoreExtractor:
         items = self.forensicstore.select("file", conditions)
         # fsf = self.forensicstore.remote_fs.open("WindowsDeviceSetup/setupapi.dev.log", mode='rb')
         for item in items:
-            if "export_path" in item:
-                fsf = self.forensicstore.remote_fs.open(item["export_path"], mode='rb')
+            if "export_path" not in item:
+                continue
+            fsf = self.forensicstore.remote_fs.open(item["export_path"], mode='rb')
 
-                inital_timestamp = {"first_insert": None}
-                if device_id:
+            inital_timestamp = {"first_insert": None}
+            if device_id:
 
-                    # Checks each line for the first insert timestamp in setupapi.dev.log
-                    for line in fsf:
-                        try:
-                            log_line = line.decode("utf-8")
-                            if "Device Install (Hardware initiated)" in log_line and device_id in log_line:
-                                splitted_log_line = next(fsf).decode("UTF-8").split(' ')
-                                date = splitted_log_line.pop().replace("\r\n", "")
-                                time = splitted_log_line.pop()
-                                inital_timestamp = {"first_insert": date + " " + time}
-                                break
+                # Checks each line for the first insert timestamp in setupapi.dev.log
+                for line in fsf:
+                    try:
+                        log_line = line.decode("utf-8")
+                        if "Device Install (Hardware initiated)" in log_line and device_id in log_line:
+                            splitted_log_line = next(fsf).decode("UTF-8").split(' ')
+                            date = splitted_log_line.pop().replace("\r\n", "")
+                            time = splitted_log_line.pop()
+                            inital_timestamp = {"first_insert": date + " " + time}
+                            break
 
-                        except UnicodeDecodeError:
-                            pass
+                    except UnicodeDecodeError:
+                        pass
         return inital_timestamp
 
     @staticmethod
