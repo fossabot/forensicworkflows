@@ -139,9 +139,6 @@ def filetime_to_timestamp(filetime_64):
 
 
 def main():
-    if len(sys.argv) > 1 and sys.argv[1] == "info":
-        print(json.dumps({"Use": "hotfixes", "Short": "Process windows hotfixes"}))
-        sys.exit(0)
     store = forensicstore.connect(".")
     hklmsw = "HKEY_LOCAL_MACHINE\\SOFTWARE\\"
     conditions = [{

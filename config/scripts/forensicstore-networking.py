@@ -96,9 +96,6 @@ def transform(objs):
 
 
 def main():
-    if len(sys.argv) > 1 and sys.argv[1] == "info":
-        print(json.dumps({"Use": "networking", "Short": "Process windows network interfaces"}))
-        sys.exit(0)
     store = forensicstore.connect(".")
     conditions = [
         {'key': r"HKEY_LOCAL_MACHINE\SYSTEM\%ControlSet%\Control\Network\{4D36E972-E325-11CE-BFC1-08002BE10318}\%"},

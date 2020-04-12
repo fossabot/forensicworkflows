@@ -22,6 +22,7 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -33,9 +34,9 @@ import (
 
 // Workflow is a subcommand to run a forensic worklow
 func Workflow() *cobra.Command {
-	command := &cobra.Command{
+	workflowCmd := &cobra.Command{
 		Use:   "workflow",
-		Short: "Run a workflow on the forensicstore",
+		Short: "Run a workflow",
 		Long: `process can run parallel workflows locally. Those workflows are a directed acyclic graph of tasks.
 Those tasks can be defined to be run on the system itself or in a containerized way.`,
 		Args: func(cmd *cobra.Command, args []string) error {
@@ -50,6 +51,7 @@ Those tasks can be defined to be run on the system itself or in a containerized 
 			return cmd.MarkFlagRequired("workflow")
 		},
 		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println("run workflow")
 			// parse workflow yaml
 			workflowFile := cmd.Flags().Lookup("workflow").Value.String()
 			if _, err := os.Stat(workflowFile); os.IsNotExist(err) {
@@ -60,20 +62,20 @@ Those tasks can be defined to be run on the system itself or in a containerized 
 				log.Fatal("parsing failed: ", err)
 			}
 
-			commands := map[string]*cobra.Command{}
-			for _, command := range allCommands() {
-				commands[command.Use] = command
+			plugins := map[string]*cobra.Command{}
+			for _, plugin := range allCommands() {
+				plugins[plugin.Use] = plugin
 			}
 
 			workflow.SetupGraph()
 			for _, url := range args {
-				err = workflow.Run(url, commands)
+				err = workflow.Run(url, plugins)
 				if err != nil {
 					log.Fatal("run failed: ", err)
 				}
 			}
 		},
 	}
-	command.Flags().String("workflow", "", "workflow definition file")
-	return command
+	workflowCmd.Flags().String("workflow", "", "workflow definition file")
+	return workflowCmd
 }

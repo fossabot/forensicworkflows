@@ -44,9 +44,6 @@ def transform(items):
 
 
 def main():
-    if len(sys.argv) > 1 and sys.argv[1] == "info":
-        print(json.dumps({"Use": "runkeys", "Short": "Process windows run keys"}))
-        sys.exit(0)
     store = forensicstore.connect(".")
     hklmsw = "HKEY_LOCAL_MACHINE\\Software\\"
     hkusw = "HKEY_USERS\\%\\Software\\"

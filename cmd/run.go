@@ -32,7 +32,7 @@ func Run() *cobra.Command {
 	// Install().Execute()
 	command := &cobra.Command{
 		Use:   "run",
-		Short: "Run a workflow on the forensicstore",
+		Short: "Run single task",
 	}
 	command.AddCommand(allCommands()...)
 	return command

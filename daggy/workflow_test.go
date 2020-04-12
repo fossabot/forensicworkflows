@@ -26,6 +26,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 
 	"github.com/otiai10/copy"
@@ -116,6 +117,33 @@ func Test_processJob(t *testing.T) {
 						t.Errorf("runTask() error, wrong number of resuls = %d, want %d (%v)", len(items), tt.wantCount, len(items))
 					}
 				}
+			}
+		})
+	}
+}
+
+func Test_toCmdline(t *testing.T) {
+	var i interface{}
+	i = []map[string]string{
+		map[string]string{"foo": "bar", "bar": "baz"},
+		map[string]string{"a": "b"},
+	}
+
+	type args struct {
+		name string
+		i    interface{}
+	}
+	tests := []struct {
+		name string
+		args args
+		want []string
+	}{
+		{"filter", args{"filter", i}, []string{"--filter", "foo=bar,bar=baz", "--filter", "a=b"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := toCmdline(tt.args.name, tt.args.i); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("toCmdline() = %v, want %v", got, tt.want)
 			}
 		})
 	}

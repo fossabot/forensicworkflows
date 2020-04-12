@@ -33,8 +33,6 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-
-	"github.com/forensicanalysis/forensicworkflows/cmd/subcommands"
 )
 
 const appName = "forensicstore"
@@ -46,7 +44,7 @@ func scriptCommands() []*cobra.Command {
 
 	var commands []*cobra.Command
 	for _, info := range infos {
-		if info.Mode().IsRegular() && strings.HasPrefix(info.Name(), appName+"-") {
+		if info.Mode().IsRegular() && strings.HasPrefix(info.Name(), appName+"-") && !strings.HasSuffix(info.Name(), ".info") {
 			commands = append(commands, scriptCommand(filepath.Join(scriptDir, info.Name())))
 		}
 	}
@@ -59,7 +57,12 @@ func scriptCommand(path string) *cobra.Command {
 
 	out, err := ioutil.ReadFile(path + ".info") // #nosec
 	if err != nil {
-		log.Println(path, err)
+		if os.IsNotExist(err) {
+			// TODO: info file not exists
+			log.Println(path, err)
+		} else {
+			log.Println(path, err)
+		}
 	} else {
 		err = json.Unmarshal(out, &cmd)
 		if err != nil {
@@ -71,21 +74,15 @@ func scriptCommand(path string) *cobra.Command {
 		cmd.Use = filepath.Base(path)
 	}
 	cmd.Short += " (script)"
-	cmd.Args = subcommands.RequireStore
+	// cmd.Args = subcommands.RequireStore
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		for _, url := range args {
-			shellArgs := []string{"-c", `"` + filepath.ToSlash(path) + `"`}
-			shellArgs = append(shellArgs, args...)
-			script := exec.Command("sh", shellArgs...) // #nosec
-			script.Dir = url
-			script.Stdout = os.Stdout
-			script.Stderr = log.Writer()
-			err := script.Run()
-			if err != nil {
-				return err
-			}
-		}
-		return nil
+		script := exec.Command(path, args...) // #nosec
+		// script.Dir = url
+		script.Stdout = os.Stdout
+		script.Stderr = log.Writer()
+		return script.Run()
 	}
+	cmd.FParseErrWhitelist = cobra.FParseErrWhitelist{UnknownFlags: true}
+	cmd.DisableFlagParsing = true
 	return &cmd
 }

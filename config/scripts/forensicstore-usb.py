@@ -184,7 +184,4 @@ def main():
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1 and sys.argv[1] == "info":
-        print(json.dumps({"Use": "usb", "Short": "Process usb artifacts"}))
-        sys.exit(0)
     main()

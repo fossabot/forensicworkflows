@@ -54,9 +54,6 @@ def transform(store, items, name, header):
 
 
 def main():
-    if len(sys.argv) > 1 and sys.argv[1] == "info":
-        print(json.dumps({"Use": "csv", "Short": "Generate csv file"}))
-        sys.exit(0)
     store = forensicstore.connect(".")
     items = list(store.select(sys.argv[1]))
     results = transform(store, items, sys.argv[1], sys.argv[2:])

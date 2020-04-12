@@ -23,6 +23,8 @@ package daggy
 
 import (
 	"fmt"
+	"reflect"
+	"strings"
 
 	"github.com/hashicorp/terraform/dag"
 	"github.com/hashicorp/terraform/tfdiags"
@@ -64,12 +66,12 @@ func (workflow *Workflow) SetupGraph() {
 }
 
 // Run walks the direct acyclic graph to execute each task.
-func (workflow *Workflow) Run(workingDir string, plugins map[string]*cobra.Command) error {
+func (workflow *Workflow) Run(storeDir string, plugins map[string]*cobra.Command) error {
 	w := &dag.Walker{Callback: func(v dag.Vertex) tfdiags.Diagnostics {
 		task := workflow.Tasks[v.(string)]
 
 		if plugin, ok := plugins[task.Command]; ok {
-			err := workflow.runTask(plugin, task)
+			err := workflow.runTask(plugin, task, storeDir)
 			if err != nil {
 				return tfdiags.Diagnostics{tfdiags.Sourceless(tfdiags.Error, fmt.Sprint(v.(string)), err.Error())}
 			}
@@ -81,11 +83,52 @@ func (workflow *Workflow) Run(workingDir string, plugins map[string]*cobra.Comma
 	return w.Wait().Err()
 }
 
-func (workflow *Workflow) runTask(cmd *cobra.Command, task Task) error {
+func (workflow *Workflow) runTask(plugin *cobra.Command, task Task, storeDir string) error {
 	args := []string{}
 	for flag, value := range task.Arguments {
-		args = append(args, "--"+flag, fmt.Sprint(value))
+		args = append(args, toCmdline(flag, value)...)
 	}
-	cmd.SetArgs(args)
-	return cmd.Execute()
+	args = append(args, storeDir)
+
+	// plugin.ParseFlags(args)
+	plugin.SetArgs(args)
+
+	return plugin.Execute()
+}
+
+func toCmdline(name string, i interface{}) []string {
+	switch reflect.TypeOf(i).Kind() {
+	case reflect.Slice:
+		s := []string{}
+		v := reflect.ValueOf(i)
+		for i := 0; i < v.Len(); i++ {
+			s = append(s, "--"+name, toCmdline2(v.Index(i)))
+		}
+		return s
+	default:
+		return []string{"--" + name, fmt.Sprint(i)}
+	}
+}
+
+func toCmdline2(v reflect.Value) string {
+	for v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface {
+		v = v.Elem()
+	}
+	switch v.Kind() {
+	case reflect.Slice:
+		var parts []string
+		for i := 0; i < v.Len(); i++ {
+			parts = append(parts, toCmdline2(v.Index(i)))
+		}
+		return strings.Join(parts, ",")
+	case reflect.Map:
+		var parts []string
+		for _, k := range v.MapKeys() {
+			i := v.MapIndex(k)
+			parts = append(parts, fmt.Sprintf("%s=%s", k, i))
+		}
+		return strings.Join(parts, ",")
+	default:
+		return fmt.Sprint(v.Interface())
+	}
 }

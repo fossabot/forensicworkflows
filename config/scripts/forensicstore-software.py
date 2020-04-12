@@ -85,7 +85,4 @@ def main():
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1 and sys.argv[1] == "info":
-        print(json.dumps({"Use": "software", "Short": "Process uninstall entries"}))
-        sys.exit(0)
     main()

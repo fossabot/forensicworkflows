@@ -46,9 +46,6 @@ def transform(store, items, template_name):
 
 
 def main():
-    if len(sys.argv) > 1 and sys.argv[1] == "info":
-        print(json.dumps({"Use": "report", "Short": "Generate markdown reports"}))
-        sys.exit(0)
     store = forensicstore.connect(".")
     items = list(store.select(sys.argv[1], combined_conditions(None)))
     result = transform(store, items, sys.argv[2])

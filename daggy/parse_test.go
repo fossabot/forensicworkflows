@@ -66,7 +66,7 @@ func TestParse(t *testing.T) {
 		want    *Workflow
 		wantErr bool
 	}{
-		{"Parse example-workflow.yml", args{"../workflow.yml"}, workflow, false},
+		{"Parse example-workflow.yml", args{"../test/data/test.yml"}, workflow, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

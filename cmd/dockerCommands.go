@@ -97,6 +97,7 @@ func dockerCommand(image string, labels map[string]string) *cobra.Command {
 			return nil
 		},
 	}
+	cmd.FParseErrWhitelist = cobra.FParseErrWhitelist{UnknownFlags: true}
 	cmd.PersistentFlags().StringVar(&dockerUser, "docker-user", "", "docker registry username")
 	cmd.PersistentFlags().StringVar(&dockerPassword, "docker-password", "", "docker registry password")
 	cmd.PersistentFlags().StringVar(&dockerServer, "docker-server", "", "docker registry server")
